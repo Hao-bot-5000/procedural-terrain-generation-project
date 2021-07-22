@@ -3,12 +3,15 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour {
     public float movementSpeed = 16f;
     public float jumpHeight = 4f;
+    public float slideSpeed = 25f;
 
     public Transform perspective;
     public float sensitivity = 2f;
 
     CharacterController playerController;
     Vector3 playerVelocity;
+    
+    Vector3 groundNormal;
 
     float yaw = 0f;
     float pitch = 0f;
@@ -19,6 +22,8 @@ public class PlayerMovement : MonoBehaviour {
     void Start() {
         playerController = GetComponent<CharacterController>();
         playerVelocity = Vector3.zero;
+        
+        groundNormal = Vector3.up;
         // gravitationalPull = 0f;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -26,7 +31,7 @@ public class PlayerMovement : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        // Debug.Log("Grounded?: " + playerController.isGrounded);
+        Debug.Log("Grounded?: " + playerController.isGrounded);
         MovePlayer();
         RotatePlayer();
 
@@ -46,13 +51,26 @@ public class PlayerMovement : MonoBehaviour {
         // if (playerVelocity.x != 0 && playerVelocity.z != 0) transform.forward = new Vector3(playerVelocity.x, 0, playerVelocity.z);
     }
 
+    void OnControllerColliderHit(ControllerColliderHit hit) {
+        if (playerController.isGrounded && groundNormal != hit.normal) {
+            Debug.Log("collidercontrollerhit!");
+            groundNormal = hit.normal;
+        }
+    }
+
     private void MovePlayer() {
-        // TODO: Make player slide down slopes with angles > playerController.slopeLimit
         Vector3 localXMovement = Input.GetAxis("Horizontal") * transform.right * movementSpeed;
         Vector3 localYMovement = CalculateVerticalMovement();
         Vector3 localZMovement = Input.GetAxis("Vertical") * transform.forward * movementSpeed;
 
         playerVelocity = localXMovement + localYMovement + localZMovement;
+
+        // FIXME: fix jittery sliding when colliding with multiple planes of differing normals
+        float normalAngle = Vector3.Angle(transform.up, groundNormal);
+        if (playerController.isGrounded && normalAngle > playerController.slopeLimit) {
+            playerVelocity.x += (1f - groundNormal.y) * groundNormal.x * slideSpeed;
+            playerVelocity.z += (1f - groundNormal.y) * groundNormal.z * slideSpeed;
+        }
 
         playerController.Move(playerVelocity * Time.deltaTime);
 
