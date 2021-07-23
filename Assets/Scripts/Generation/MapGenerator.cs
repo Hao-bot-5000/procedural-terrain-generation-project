@@ -33,10 +33,10 @@ public class MapGenerator : MonoBehaviour {
 
     float[,] falloffMap;
 
+    System.Random seedRNG;
+
 	public MapData GenerateMapData(Vector2 center) {
-        System.Random seedRNG = new System.Random(seed);
-		float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seedRNG/*seed*/, noiseScale, octaves, persistance, lacunarity, center + offset);
-        // float[,] treeMap = Noise.GenerateNoiseMap(mapSize, mapSize, pseudoRandom/*seed*/, noiseScale, octaves, persistance, lacunarity, center + offset);
+		float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset);
 
         Color[] colorMap = new Color[mapSize * mapSize];
         for (int z = 0; z < mapSize; z++) {
@@ -61,8 +61,9 @@ public class MapGenerator : MonoBehaviour {
 	}
 
     public void DrawMap() {
-        MapData mapData = GenerateMapData(Vector2.zero);
+        seedRNG = new System.Random(seed);
 
+        MapData mapData = GenerateMapData(Vector2.zero);
         MapDisplay display = FindObjectOfType<MapDisplay>();
 
         switch (drawMode) {
@@ -76,8 +77,8 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(mapSize)));
                 break;
             case DrawMode.Mesh:
-                display.DrawMesh(MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD), TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
-                display.DrawWater(displayWaterMesh, mapSize, mapSize, previewLOD); // NOTE: water
+                display.DrawMesh(TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD), TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
+                display.DrawWater(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(mapSize, mapSize, previewLOD) : null); // NOTE: water
                 break;
             default: break;
         }
