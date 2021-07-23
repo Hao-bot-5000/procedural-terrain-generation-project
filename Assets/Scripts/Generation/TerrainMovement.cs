@@ -11,19 +11,12 @@ public class TerrainMovement : MonoBehaviour {
 
     void Start() {
         terrainFilter = GetComponent<MeshFilter>();
-        // if (terrainFilter != null || terrainFilter.sharedMesh != null) UpdateTerrain();
     }
 
     void Update() {
         if (terrainFilter != null || terrainFilter.sharedMesh != null) UpdateTerrain();
         xOffset += frequency * Time.deltaTime;
         yOffset += frequency * Time.deltaTime;
-
-        // if (yOffset <= 0.1) yOffset += Time.deltaTime * frequency;
-        // if (yOffset >= strength) yOffset -= Time.deltaTime * frequency;
-
-        // if (xOffset <= 0.1) xOffset += Time.deltaTime * frequency;
-        // if (xOffset >= strength) xOffset -= Time.deltaTime * frequency;
     }
 
     // TODO: Only adds up/down terrain movement (water waves) - try expanding this to be useful for
@@ -44,6 +37,5 @@ public class TerrainMovement : MonoBehaviour {
         float scaleY = y * scale + yOffset;
 
         return Mathf.PerlinNoise(scaleX, scaleY) * strength;
-        // return Mathf.PerlinNoise(Mathf.Cos(scaleX), Mathf.Sin(scaleY)) * strength;
     }
 }

@@ -16,9 +16,6 @@ public class PlayerMovement : MonoBehaviour {
     float yaw = 0f;
     float pitch = 0f;
 
-    // bool isJumping;
-
-    // Start is called before the first frame update
     void Start() {
         playerController = GetComponent<CharacterController>();
         playerVelocity = Vector3.zero;
@@ -29,26 +26,10 @@ public class PlayerMovement : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    // Update is called once per frame
     void Update() {
         // Debug.Log("Grounded?: " + playerController.isGrounded);
         MovePlayer();
         RotatePlayer();
-
-        // Debug.Log(playerController.isGrounded);
-        // playerVelocity.x = Input.GetAxis("Horizontal") * movementSpeed * Time.deltaTime;
-        // playerVelocity.y = playerController.isGrounded ? -0.01f : playerVelocity.y + (Physics.gravity.y * Time.deltaTime);
-        // playerVelocity.z = Input.GetAxis("Vertical") * movementSpeed * Time.deltaTime;
-
-        // if (playerController.isGrounded && Input.GetButtonDown("Jump")) {
-        //     Debug.Log("Jump");
-        //     playerVelocity.y += Mathf.Sqrt(jumpHeight * Physics.gravity.y * -2f);
-        // }
-
-        // playerController.Move(playerVelocity);
-
-        // Character faces in direction it is currently moving in
-        // if (playerVelocity.x != 0 && playerVelocity.z != 0) transform.forward = new Vector3(playerVelocity.x, 0, playerVelocity.z);
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit) {
@@ -73,15 +54,6 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         playerController.Move(playerVelocity * Time.deltaTime);
-
-        // gravitationalPull = playerController.isGrounded ? -playerController.stepOffset / Time.deltaTime : gravitationalPull + Physics.gravity.y * Time.deltaTime;
-
-        // Vector3 input = (transform.forward * forwardInput + transform.right * sidewaysInput) * movementSpeed;
-        // Vector3 gravity = transform.up * gravitationalPull;
-
-        // playerController.Move((input + gravity) * Time.deltaTime);
-
-
     }
 
     private void RotatePlayer() {
@@ -94,11 +66,6 @@ public class PlayerMovement : MonoBehaviour {
 
         transform.localEulerAngles = new Vector3(0f, yaw, 0f);
         perspective.localEulerAngles = new Vector3(pitch, 0f, 0f);
-
-        // Vector3 perspectiveAngle = perspective.localEulerAngles;
-        // if (perspectiveAngle.x > 180f) perspectiveAngle.x -= 360f;
-        // perspectiveAngle.x = Mathf.Clamp(perspectiveAngle.x, -75f, 75f);
-        // perspective.localRotation = Quaternion.Euler(perspectiveAngle);
     }
 
     private Vector3 CalculateVerticalMovement() {

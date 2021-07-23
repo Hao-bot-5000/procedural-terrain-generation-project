@@ -2,8 +2,7 @@ using UnityEngine;
 
 public static class Noise {
 
-	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, /*int seed*/System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset) {
-        // System.Random pseudoRandom = new System.Random(seed);
+	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset) {
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1f;
