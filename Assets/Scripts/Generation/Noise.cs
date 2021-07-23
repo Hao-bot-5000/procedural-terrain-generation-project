@@ -2,7 +2,8 @@ using UnityEngine;
 
 public static class Noise {
 
-	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float step=0) {
+    // NOTE: discreteness currently splits the noise map into 1/n + 1 distinct values (i.e. discreteness of 1/4 ==> 5 unique map values)
+	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float discreteness=0) {
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1f;
@@ -57,7 +58,8 @@ public static class Noise {
                 float noise = Mathf.InverseLerp(minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap[x, z]);
                 
                 // Step variable creates a 'discrete' perlin noise map
-                if (step > 0) noise = Mathf.Min(Mathf.Round(noise / step) * step, 1);
+                // TODO: this doesn't work exactly as I want - i.e. discreteness of 1/2 should split map into 2 distinct values (currently 2 + 1 = 3)
+                if (discreteness > 0) noise = Mathf.Round(noise / discreteness) * discreteness;
                 
                 noiseMap[x, z] = noise;
             }
