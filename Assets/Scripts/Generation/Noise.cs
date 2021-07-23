@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class Noise {
 
-	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset) {
+	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float step=0) {
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1f;
@@ -55,6 +55,10 @@ public static class Noise {
         for (int z = 0; z < mapWidth; z++) {
             for (int x = 0; x < mapHeight; x++) {
                 float noise = Mathf.InverseLerp(minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap[x, z]);
+                
+                // Step variable creates a 'discrete' perlin noise map
+                if (step > 0) noise = Mathf.Min(Mathf.Round(noise / step) * step, 1);
+                
                 noiseMap[x, z] = noise;
             }
         }
