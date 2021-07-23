@@ -17,8 +17,9 @@ public static class MeshGenerator {
         int vertexIndex = 0;
         for (int z = 0; z < height; z += meshSimplificationIncrement) {
             for (int x = 0; x < width; x += meshSimplificationIncrement) {
-                float vertexHeight = /*MapValueOntoSmoothStaircaseFunction(*//*heightCurve.Evaluate(*/heightMap[x, z]/*)*/ * (heightMultiplier)/*, 2)*/;
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, Mathf.Round(vertexHeight), topLeftZ - z);
+                // Flooring vertexHeight to generate cube-like generation 
+                float vertexHeight = Mathf.Round(heightMap[x, z] * (heightMultiplier));
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, vertexHeight, topLeftZ - z);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float) width, z / (float) height);
 
                 // Create triangles
