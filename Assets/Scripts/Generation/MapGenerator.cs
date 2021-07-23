@@ -3,7 +3,7 @@ using System;
 
 public class MapGenerator : MonoBehaviour {
 
-	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, Mesh };
+	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, TreeMap, Mesh };
     public DrawMode drawMode;
 
     public const int mapSize = 97;
@@ -61,9 +61,10 @@ public class MapGenerator : MonoBehaviour {
 	}
 
     public void DrawMap() {
+        Vector2 center = Vector2.zero;
         seedRNG = new System.Random(seed);
 
-        MapData mapData = GenerateMapData(Vector2.zero);
+        MapData mapData = GenerateMapData(center);
         MapDisplay display = FindObjectOfType<MapDisplay>();
 
         switch (drawMode) {
@@ -75,6 +76,9 @@ public class MapGenerator : MonoBehaviour {
                 break;
             case DrawMode.FalloffMap:
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(mapSize)));
+                break;
+            case DrawMode.TreeMap:
+                display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f)));
                 break;
             case DrawMode.Mesh:
                 display.DrawMesh(TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD), TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
