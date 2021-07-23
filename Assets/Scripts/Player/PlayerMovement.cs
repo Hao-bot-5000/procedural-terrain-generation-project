@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        Debug.Log("Grounded?: " + playerController.isGrounded);
+        // Debug.Log("Grounded?: " + playerController.isGrounded);
         MovePlayer();
         RotatePlayer();
 
@@ -52,8 +52,8 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit) {
-        if (playerController.isGrounded && groundNormal != hit.normal) {
-            Debug.Log("collidercontrollerhit!");
+        if (hit.moveDirection == Vector3.down && groundNormal != hit.normal) {
+            // Debug.Log("collidercontrollerhit!");
             groundNormal = hit.normal;
         }
     }
