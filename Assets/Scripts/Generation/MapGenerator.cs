@@ -26,6 +26,7 @@ public class MapGenerator : MonoBehaviour {
     public float meshHeightMultiplier;
     public AnimationCurve meshHeightCurve;
     public bool displayWaterMesh;
+    public bool displayTrees;
 
     public bool autoUpdate;
 
@@ -81,7 +82,9 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f)));
                 break;
             case DrawMode.Mesh:
-                display.DrawMesh(TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD), TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
+                MeshData terrainMesh = TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD);
+                display.DrawMesh(terrainMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
+                display.DrawTrees(terrainMesh, displayTrees ? TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f) : null);
                 display.DrawWater(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(mapSize, mapSize, previewLOD) : null); // NOTE: water
                 break;
             default: break;

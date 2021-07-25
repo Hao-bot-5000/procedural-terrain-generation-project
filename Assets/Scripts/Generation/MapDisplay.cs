@@ -29,4 +29,10 @@ public class MapDisplay : MonoBehaviour {
     public void DrawWater(MeshData meshData) {
         waterFilter.sharedMesh = meshData.CreateMesh();
     }
+
+    public void DrawTrees(MeshData meshData, float[,] treeMap) {
+        if (treeMap == null) return;
+
+        // Generate tree meshes here :)
+    }
 }
