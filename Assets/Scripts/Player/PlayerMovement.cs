@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour {
     CharacterController playerController;
     Vector3 playerVelocity;
     
-    Vector3 groundNormal;
+    Vector3 surfaceNormal;
 
     float yaw = 0f;
     float pitch = 0f;
@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour {
         playerController = GetComponent<CharacterController>();
         playerVelocity = Vector3.zero;
         
-        groundNormal = Vector3.up;
+        surfaceNormal = Vector3.up;
         // gravitationalPull = 0f;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -33,9 +33,11 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit) {
-        if (hit.moveDirection == Vector3.down && groundNormal != hit.normal) {
-            // Debug.Log("collidercontrollerhit!");
-            groundNormal = hit.normal;
+        if (hit.moveDirection == Vector3.down) {
+            // Point on player controller where surface contacts player
+            Vector3 surfaceContactPoint = hit.point;
+            surfaceContactPoint.y += playerController.skinWidth;
+            surfaceNormal = CalculateSurfaceNormal(surfaceContactPoint);
         }
     }
 
@@ -46,11 +48,19 @@ public class PlayerMovement : MonoBehaviour {
 
         playerVelocity = localXMovement + localYMovement + localZMovement;
 
-        // FIXME: fix jittery sliding when colliding with multiple planes of differing normals
-        float normalAngle = Vector3.Angle(transform.up, groundNormal);
-        if (playerController.isGrounded && normalAngle > playerController.slopeLimit) {
-            playerVelocity.x += (1f - groundNormal.y) * groundNormal.x * slideSpeed;
-            playerVelocity.z += (1f - groundNormal.y) * groundNormal.z * slideSpeed;
+        /* 
+         * FIXME: 
+         *      1. fix jittery sliding when colliding with multiple planes of differing normals
+         *      2. (FIXED!! yay.. i think..) fix jittery sliding when sliding down VERY STEEP slopes (isGrounded becomes false)
+         */
+        if (playerController.isGrounded) {
+            float normalAngle = Vector3.Angle(transform.up, surfaceNormal);
+            Debug.Log(normalAngle);
+
+            if (normalAngle > playerController.slopeLimit) {
+                playerVelocity.x += (1f - surfaceNormal.y) * surfaceNormal.x * slideSpeed;
+                playerVelocity.z += (1f - surfaceNormal.y) * surfaceNormal.z * slideSpeed;
+            }
         }
 
         playerController.Move(playerVelocity * Time.deltaTime);
@@ -69,13 +79,15 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     private Vector3 CalculateVerticalMovement() {
+        // https://forum.unity.com/threads/controller-isgrounded-doesnt-work-reliably.91436/#post-592670
+        // TODO: Figure out why grounded Y-velocity is set to -stepOffset / deltaTime?
         if (playerController.isGrounded) {
             if (Input.GetButtonDown("Jump")) {
                 float jumpForce = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
                 playerVelocity.y = jumpForce;
             }
             else {
-                playerVelocity.y = -playerController.stepOffset / Time.deltaTime;
+                playerVelocity.y = Physics.gravity.y; // -playerController.stepOffset / Time.deltaTime;
             }
         }
         else {
@@ -83,5 +95,19 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         return transform.up * playerVelocity.y;
+    }
+
+    private Vector3 CalculateSurfaceNormal(Vector3 surfaceContactPoint) {
+        RaycastHit hit;
+
+        Ray ray = new Ray(surfaceContactPoint, -transform.up);
+        float rayLength = playerController.skinWidth + 0.1f;
+
+        bool surfaceDetected = Physics.Raycast(ray, out hit, rayLength);
+        Debug.DrawRay(ray.origin, ray.direction * rayLength, surfaceDetected ? Color.green : Color.red);
+        // Debug.Log("Surface contact point: " + surfaceContactPoint + " | " + surfaceDetected);
+
+        // If no surface detected, return vector that results in 0-degree angle
+        return surfaceDetected ? hit.normal : transform.up;
     }
 }
