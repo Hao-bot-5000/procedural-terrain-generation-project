@@ -36,10 +36,15 @@ public class MeshData {
 
     public Mesh CreateMesh() {
         Mesh mesh = new Mesh();
+
+        // Mesh max vertex count from ~65k (16-bit) -> ~4b (32-bit)
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
         mesh.RecalculateNormals();
+        mesh.Optimize();
         return mesh;
     }
 }

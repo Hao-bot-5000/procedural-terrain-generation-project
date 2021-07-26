@@ -6,7 +6,7 @@ public class MapGenerator : MonoBehaviour {
 	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, TreeMap, Mesh };
     public DrawMode drawMode;
 
-    public const int mapSize = 97;
+    public const int mapSize = 721;
 
     [Range (0, 4)]
     public int previewLOD;
