@@ -35,4 +35,16 @@ public class MapDisplay : MonoBehaviour {
 
         // Generate tree meshes here :)
     }
+
+
+    public void ClearDisplay() {
+        meshFilter.sharedMesh = null;
+        meshRenderer.sharedMaterial.mainTexture = null;
+        meshCollider.sharedMesh = null;
+
+        waterFilter.sharedMesh = null;
+
+        textureRenderer.sharedMaterial.mainTexture = null;
+        textureRenderer.transform.localScale = Vector3.one;
+    }
 }

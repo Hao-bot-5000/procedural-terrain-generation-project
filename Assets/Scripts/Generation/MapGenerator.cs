@@ -90,6 +90,11 @@ public class MapGenerator : MonoBehaviour {
             default: break;
         }
     }
+
+    public void ClearMap() {
+        MapDisplay display = FindObjectOfType<MapDisplay>();
+        display.ClearDisplay();
+    }
 	
     void Awake() {
         falloffMap = FalloffGenerator.GenerateFalloffMap(mapSize);
