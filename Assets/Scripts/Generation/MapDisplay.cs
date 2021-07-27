@@ -8,6 +8,8 @@ public class MapDisplay : MonoBehaviour {
     public MeshCollider meshCollider;
 
     public MeshFilter waterFilter;
+
+    Dictionary<string, GameObject> children;
     
     public void DrawTexture(Texture2D texture) {
         meshFilter.sharedMesh = null;
@@ -27,38 +29,32 @@ public class MapDisplay : MonoBehaviour {
     }
 
     public void DrawMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float scale) {
-        Dictionary<string, GameObject> children = new Dictionary<string, GameObject>();
+        if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
         }
         
-        int i = 0;
-        foreach (MeshData meshData in meshDataList) {
+        for (int i = 0; i < meshDataList.Count; i++) {
+            MeshData meshData = meshDataList[i];
             bool chunkExists = children.ContainsKey("chunk (" + i + ")");
 
             GameObject chunkObject = chunkExists ? children["chunk (" + i + ")"] : new GameObject("chunk (" + i + ")");
-            int topLeftX = -2 * (mapSize - 1);
-            int topLeftZ =  2 * (mapSize - 1);
-            // FIXME: position is off-centered
+            float topLeftX = -(chunkSize / 2f) * (mapSize - 1);
+            float topLeftZ =  (chunkSize / 2f) * (mapSize - 1);
             Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkSize, 0, topLeftZ - ((i / mapSize)) * chunkSize);
-            Debug.Log(i + ": " + position);
+            // Debug.Log(i + ": " + position);
 
-            // FIXME: Preexisting chunks are not registering updates
-            if (!chunkExists) {
-                meshRenderer = chunkObject.AddComponent<MeshRenderer>();
-                meshFilter = chunkObject.AddComponent<MeshFilter>();
-                meshCollider = chunkObject.AddComponent<MeshCollider>();
-            }
+            MeshRenderer chunkMeshRenderer = chunkExists ? chunkObject.GetComponent<MeshRenderer>() : chunkObject.AddComponent<MeshRenderer>();
+            MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
+            MeshCollider chunkMeshCollider = chunkExists ? chunkObject.GetComponent<MeshCollider>() : chunkObject.AddComponent<MeshCollider>();
 
-            // meshRenderer.material = material;
-            meshFilter.sharedMesh = meshData.CreateMesh();
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
+            // chunkMeshRenderer.sharedMaterial.mainTexture = textureList[i];
+            chunkMeshFilter.sharedMesh = meshData.CreateMesh();
+            chunkMeshCollider.sharedMesh = chunkMeshFilter.sharedMesh;
 
             chunkObject.transform.position = position * scale;
             chunkObject.transform.parent = transform;
             chunkObject.transform.localScale = Vector3.one * scale;
-
-            i++;
         }
     }
 
