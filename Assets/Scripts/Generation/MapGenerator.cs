@@ -1,12 +1,15 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class MapGenerator : MonoBehaviour {
 
-	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, TreeMap, Mesh };
+	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, TreeMap, Mesh, Chunks };
     public DrawMode drawMode;
 
-    public const int mapSize = 721;
+    public const int chunkSize = 24;
+    public const int mapSize = 30; // 30 x 30 chunks
+    public const int verticesPerSide = chunkSize * mapSize + 1;
 
     [Range (0, 4)]
     public int previewLOD;
@@ -37,11 +40,11 @@ public class MapGenerator : MonoBehaviour {
     System.Random seedRNG;
 
 	public MapData GenerateMapData(Vector2 center) {
-		float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset);
+		float[,] noiseMap = Noise.GenerateNoiseMap(verticesPerSide, verticesPerSide, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset);
 
-        Color[] colorMap = new Color[mapSize * mapSize];
-        for (int z = 0; z < mapSize; z++) {
-            for (int x = 0; x < mapSize; x++) {
+        Color[] colorMap = new Color[verticesPerSide * verticesPerSide];
+        for (int z = 0; z < verticesPerSide; z++) {
+            for (int x = 0; x < verticesPerSide; x++) {
                 if (useFalloff) {
                     noiseMap[x, z] = Mathf.Clamp(noiseMap[x, z] - falloffMap[x, z], 0, 1);
                 }
@@ -49,7 +52,7 @@ public class MapGenerator : MonoBehaviour {
                 float currentHeight = noiseMap[x, z];
                 for (int i = 0; i < regions.Length; i++) {
                     if (currentHeight >= regions[i].height) {
-                        colorMap[z * mapSize + x] = regions[i].color;
+                        colorMap[z * verticesPerSide + x] = regions[i].color;
                     }
                     else {
                         break;
@@ -73,19 +76,24 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(mapData.heightMap));
                 break;
             case DrawMode.ColorMap:
-                display.DrawTexture(TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
+                display.DrawTexture(TextureGenerator.TextureFromColorMap(mapData.colorMap, verticesPerSide, verticesPerSide));
                 break;
             case DrawMode.FalloffMap:
-                display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(mapSize)));
+                display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(verticesPerSide)));
                 break;
             case DrawMode.TreeMap:
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f)));
                 break;
             case DrawMode.Mesh:
                 MeshData terrainMesh = TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD);
-                display.DrawMesh(terrainMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, mapSize, mapSize));
+                display.DrawMesh(terrainMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, verticesPerSide, verticesPerSide));
                 display.DrawTrees(terrainMesh, displayTrees ? TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f) : null);
-                display.DrawWater(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(mapSize, mapSize, previewLOD) : null); // NOTE: water
+                display.DrawWater(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(verticesPerSide, verticesPerSide, previewLOD) : null); // NOTE: water
+                break;
+            case DrawMode.Chunks:
+                List<MeshData> terrainMeshes = TerrainGenerator.GenerateTerrainMeshes(mapData.heightMap, meshHeightMultiplier, chunkSize, mapSize, meshHeightCurve);
+                display.DrawMeshes(terrainMeshes, chunkSize, mapSize, 10f);
+                display.DrawWater(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(verticesPerSide, verticesPerSide, previewLOD) : null); // NOTE: water
                 break;
             default: break;
         }
@@ -97,12 +105,12 @@ public class MapGenerator : MonoBehaviour {
     }
 	
     void Awake() {
-        falloffMap = FalloffGenerator.GenerateFalloffMap(mapSize);
+        falloffMap = FalloffGenerator.GenerateFalloffMap(verticesPerSide);
         DrawMap();
     }
 
     void OnValidate() {
-        if (falloffMap == null) falloffMap = FalloffGenerator.GenerateFalloffMap(mapSize);
+        if (falloffMap == null) falloffMap = FalloffGenerator.GenerateFalloffMap(verticesPerSide);
     }
 }
 
