@@ -93,8 +93,9 @@ public class MapGenerator : MonoBehaviour {
             case DrawMode.Chunks:
                 List<MeshData> terrainMeshes = TerrainGenerator.GenerateTerrainMeshes(mapData.heightMap, meshHeightMultiplier, chunkSize, mapSize, meshHeightCurve);
                 List<Texture2D> terrainTextures = TextureGenerator.TexturesFromColorMap(mapData.colorMap, chunkSize, mapSize, verticesPerSide);
+                List<MeshData> waterMeshes = WaterGenerator.GenerateWaterMeshes(chunkSize, mapSize);
                 display.DrawTerrainMeshes(terrainMeshes, terrainTextures, chunkSize, mapSize, 10f);
-                display.DrawWaterMesh(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(verticesPerSide, verticesPerSide, previewLOD) : null); // NOTE: water
+                display.DrawWaterMeshes(waterMeshes, chunkSize, mapSize, 11f, 10f); // NOTE: water
                 break;
             default: break;
         }

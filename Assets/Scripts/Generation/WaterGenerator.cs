@@ -1,7 +1,20 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public static class WaterGenerator {
     // NOTE: water
+    public static List<MeshData> GenerateWaterMeshes(int chunkSize, int mapSize) {
+        chunkSize++;
+
+        List<MeshData> chunkList = new List<MeshData>();
+
+        for (int i = 0; i < mapSize * mapSize; i++) {
+            chunkList.Add(GenerateWaterMesh(chunkSize, chunkSize, 1)); // FIXME: hardcoded LOD value of 1
+        }
+
+        return chunkList;
+    }
+
     public static MeshData GenerateWaterMesh(int width, int height, int levelOfDetail) {
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;

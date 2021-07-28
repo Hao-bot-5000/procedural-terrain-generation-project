@@ -10,6 +10,7 @@ public class MapDisplay : MonoBehaviour {
     public MeshFilter waterFilter;
 
     public Material terrainMaterial;
+    public Material waterMaterial;
 
     Dictionary<string, GameObject> children;
     
@@ -63,6 +64,33 @@ public class MapDisplay : MonoBehaviour {
     // NOTE: water
     public void DrawWaterMesh(MeshData meshData) {
         waterFilter.sharedMesh = meshData.CreateMesh(meshData.vertices.Length > ushort.MaxValue);
+    }
+
+    public void DrawWaterMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float waterLevel, float scale) {
+        if (children == null) children = new Dictionary<string, GameObject>();
+        foreach (Transform child in transform) {
+            if (child.name.StartsWith("water")) children.Add(child.name, child.gameObject);
+        }
+
+        for (int i = 0; i < meshDataList.Count; i++) {
+            bool chunkExists = children.ContainsKey("water (" + i + ")");
+
+            GameObject chunkObject = chunkExists ? children["water (" + i + ")"] : new GameObject("water (" + i + ")");
+            float topLeftX = -(chunkSize / 2f) * (mapSize - 1);
+            float topLeftZ =  (chunkSize / 2f) * (mapSize - 1);
+            Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkSize, waterLevel, topLeftZ - ((i / mapSize)) * chunkSize);
+            // Debug.Log(i + ": " + position);
+
+            MeshRenderer chunkMeshRenderer = chunkExists ? chunkObject.GetComponent<MeshRenderer>() : chunkObject.AddComponent<MeshRenderer>();
+            MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
+
+            chunkMeshRenderer.sharedMaterial = waterMaterial;
+            chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh();
+
+            chunkObject.transform.position = position * scale;
+            chunkObject.transform.parent = transform;
+            chunkObject.transform.localScale = Vector3.one * scale;
+        }
     }
 
     public void DrawTrees(MeshData meshData, float[,] treeMap) {
