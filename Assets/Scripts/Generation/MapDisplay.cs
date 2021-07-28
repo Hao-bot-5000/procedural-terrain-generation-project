@@ -24,13 +24,13 @@ public class MapDisplay : MonoBehaviour {
         textureRenderer.transform.localScale = new Vector3(-texture.width, 1, texture.height);
     }
 
-    public void DrawMesh(MeshData meshData, Texture2D texture) {
+    public void DrawTerrainMesh(MeshData meshData, Texture2D texture) {
         meshFilter.sharedMesh = meshData.CreateMesh();
         meshRenderer.sharedMaterial.mainTexture = texture;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
 
-    public void DrawMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
+    public void DrawTerrainMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
         if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
@@ -61,7 +61,7 @@ public class MapDisplay : MonoBehaviour {
     }
 
     // NOTE: water
-    public void DrawWater(MeshData meshData) {
+    public void DrawWaterMesh(MeshData meshData) {
         waterFilter.sharedMesh = meshData.CreateMesh();
     }
 
