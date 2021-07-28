@@ -14,10 +14,12 @@ public class MapGeneratorEditor : Editor {
                 mapGenerator.DrawMap();
             }
         }
-
+        
+        GUI.enabled = ((MapGenerator) target).drawMode != MapGenerator.DrawMode.Chunks;
         if (GUILayout.Button("Generate")) {
             mapGenerator.DrawMap();
         }
+        GUI.enabled = true;
 
         if (GUILayout.Button("Clear")) {
             mapGenerator.ClearMap();
