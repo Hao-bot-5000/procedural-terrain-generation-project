@@ -34,11 +34,11 @@ public class MeshData {
         uvs = flatShadedUVs;
     }
 
-    public Mesh CreateMesh() {
+    public Mesh CreateMesh(bool useInt32=false) {
         Mesh mesh = new Mesh();
 
         // Mesh max vertex count from ~65k (16-bit) -> ~4b (32-bit)
-        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        if (useInt32) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;

@@ -25,7 +25,7 @@ public class MapDisplay : MonoBehaviour {
     }
 
     public void DrawTerrainMesh(MeshData meshData, Texture2D texture) {
-        meshFilter.sharedMesh = meshData.CreateMesh();
+        meshFilter.sharedMesh = meshData.CreateMesh(meshData.vertices.Length > ushort.MaxValue);
         meshRenderer.sharedMaterial.mainTexture = texture;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
@@ -62,7 +62,7 @@ public class MapDisplay : MonoBehaviour {
 
     // NOTE: water
     public void DrawWaterMesh(MeshData meshData) {
-        waterFilter.sharedMesh = meshData.CreateMesh();
+        waterFilter.sharedMesh = meshData.CreateMesh(meshData.vertices.Length > ushort.MaxValue);
     }
 
     public void DrawTrees(MeshData meshData, float[,] treeMap) {
