@@ -9,6 +9,8 @@ public class MapDisplay : MonoBehaviour {
 
     public MeshFilter waterFilter;
 
+    public Material terrainMaterial;
+
     Dictionary<string, GameObject> children;
     
     public void DrawTexture(Texture2D texture) {
@@ -28,14 +30,13 @@ public class MapDisplay : MonoBehaviour {
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
 
-    public void DrawMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float scale) {
+    public void DrawMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
         if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
         }
         
         for (int i = 0; i < meshDataList.Count; i++) {
-            MeshData meshData = meshDataList[i];
             bool chunkExists = children.ContainsKey("chunk (" + i + ")");
 
             GameObject chunkObject = chunkExists ? children["chunk (" + i + ")"] : new GameObject("chunk (" + i + ")");
@@ -48,8 +49,9 @@ public class MapDisplay : MonoBehaviour {
             MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
             MeshCollider chunkMeshCollider = chunkExists ? chunkObject.GetComponent<MeshCollider>() : chunkObject.AddComponent<MeshCollider>();
 
-            // chunkMeshRenderer.sharedMaterial.mainTexture = textureList[i];
-            chunkMeshFilter.sharedMesh = meshData.CreateMesh();
+            chunkMeshRenderer.sharedMaterial = terrainMaterial;
+            chunkMeshRenderer.material.mainTexture = textureList[i];
+            chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh();
             chunkMeshCollider.sharedMesh = chunkMeshFilter.sharedMesh;
 
             chunkObject.transform.position = position * scale;
