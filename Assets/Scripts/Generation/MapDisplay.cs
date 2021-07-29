@@ -89,6 +89,7 @@ public class MapDisplay : MonoBehaviour {
                 // Could add code here to modify wave properties
             }
 
+            chunkMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             chunkMeshRenderer.sharedMaterial = waterMaterial;
             chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh(isDynamic: true);
 
