@@ -1,9 +1,9 @@
 using UnityEngine;
 
 public class EnvironmentMovement : MonoBehaviour {
-    public float scale; // What does this even do...
-    public float strength;
-    public float frequency;
+    public float scale = 0.25f; // What does this even do...
+    public float strength = 0.5f;
+    public float frequency = 0.25f;
 
     float xOffset = 0f;
     float yOffset = 0f;
