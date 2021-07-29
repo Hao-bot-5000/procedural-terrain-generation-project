@@ -26,7 +26,7 @@ public class MapDisplay : MonoBehaviour {
     }
 
     public void DrawTerrainMesh(MeshData meshData, Texture2D texture) {
-        meshFilter.sharedMesh = meshData.CreateMesh(meshData.vertices.Length > ushort.MaxValue);
+        meshFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue);
         meshRenderer.sharedMaterial.mainTexture = texture;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
@@ -63,7 +63,7 @@ public class MapDisplay : MonoBehaviour {
 
     // NOTE: water
     public void DrawWaterMesh(MeshData meshData) {
-        waterFilter.sharedMesh = meshData.CreateMesh(meshData.vertices.Length > ushort.MaxValue);
+        waterFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue, isDynamic: true);
     }
 
     public void DrawWaterMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float waterLevel, float scale) {
@@ -83,9 +83,14 @@ public class MapDisplay : MonoBehaviour {
 
             MeshRenderer chunkMeshRenderer = chunkExists ? chunkObject.GetComponent<MeshRenderer>() : chunkObject.AddComponent<MeshRenderer>();
             MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
+            
+            if (!chunkExists) {
+                EnvironmentMovement meshMovementScript = chunkObject.AddComponent<EnvironmentMovement>();
+                // Could add code here to modify wave properties
+            }
 
             chunkMeshRenderer.sharedMaterial = waterMaterial;
-            chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh();
+            chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh(isDynamic: true);
 
             chunkObject.transform.position = position * scale;
             chunkObject.transform.parent = transform;
