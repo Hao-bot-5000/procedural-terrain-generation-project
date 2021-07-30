@@ -87,16 +87,16 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f)));
                 break;
             case DrawMode.Mesh:
-                MeshData terrainMesh = TerrainGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD);
-                display.DrawTerrainMesh(terrainMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, verticesPerSide, verticesPerSide));
-                // display.DrawTrees(terrainMesh, displayTrees ? TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f) : null);
+                MeshData landMesh = LandGenerator.GenerateLandMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD);
+                display.DrawLandMesh(landMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, verticesPerSide, verticesPerSide));
+                // display.DrawTrees(landMesh, displayTrees ? TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f) : null);
                 display.DrawWaterMesh(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(verticesPerSide, verticesPerSide, previewLOD) : null);
                 break;
             case DrawMode.Chunks:
-                List<MeshData> terrainMeshes = TerrainGenerator.GenerateTerrainMeshes(mapData.heightMap, meshHeightMultiplier, chunkSize, mapSize, meshHeightCurve);
-                List<Texture2D> terrainTextures = TextureGenerator.TexturesFromColorMap(mapData.colorMap, chunkSize, mapSize, verticesPerSide);
+                List<MeshData> landMeshes = LandGenerator.GenerateLandMeshes(mapData.heightMap, meshHeightMultiplier, chunkSize, mapSize, meshHeightCurve);
+                List<Texture2D> landTextures = TextureGenerator.TexturesFromColorMap(mapData.colorMap, chunkSize, mapSize, verticesPerSide);
                 List<MeshData> waterMeshes = WaterGenerator.GenerateWaterMeshes(chunkSize, mapSize);
-                display.DrawTerrainMeshes(terrainMeshes, terrainTextures, chunkSize, mapSize, meshScale);
+                display.DrawLandMeshes(landMeshes, landTextures, chunkSize, mapSize, meshScale);
                 display.DrawWaterMeshes(waterMeshes, chunkSize, mapSize, waterLevel, meshScale);
                 break;
             default: break;

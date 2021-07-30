@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnvironmentMovement : MonoBehaviour {
+public class TerrainMovement : MonoBehaviour {
     public float scale = 0.275f; // Not sure what this does
     public float strength = 0.5f;
     public float frequency = 0.25f;
@@ -15,7 +15,7 @@ public class EnvironmentMovement : MonoBehaviour {
     }
 
     void Update() {
-        if (isVisible && (terrainFilter != null || terrainFilter.sharedMesh != null)) UpdateEnvironmentObject();
+        if (isVisible && (terrainFilter != null || terrainFilter.sharedMesh != null)) UpdateTerrainObject();
         xOffset += frequency * Time.deltaTime;
         yOffset += frequency * Time.deltaTime;
     }
@@ -30,7 +30,7 @@ public class EnvironmentMovement : MonoBehaviour {
 
     // TODO: Only adds up/down terrain movement (water waves) - try expanding this to be useful for
     //       other terrain objects (i.e. trees, grass).
-    private void UpdateEnvironmentObject() {
+    private void UpdateTerrainObject() {
         Vector3[] vertices = terrainFilter.sharedMesh.vertices;
 
         for (int i = 0; i < vertices.Length; i++) {

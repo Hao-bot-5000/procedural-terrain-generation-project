@@ -2,8 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public static class TerrainGenerator {
-    public static List<MeshData> GenerateTerrainMeshes(float[,] heightMap, float heightMultiplier, int chunkSize, int mapSize, AnimationCurve inputHeightCurve) {
+public static class LandGenerator {
+    public static List<MeshData> GenerateLandMeshes(float[,] heightMap, float heightMultiplier, int chunkSize, int mapSize, AnimationCurve inputHeightCurve) {
         chunkSize++;
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -22,13 +22,13 @@ public static class TerrainGenerator {
                     chunk[x, z] = heightMap[x + offsetX, z + offsetZ];
                 }
             }
-            chunkList.Add(GenerateTerrainMesh(chunk, heightMultiplier, inputHeightCurve, 1)); // FIXME: hardcoded LOD value of 1
+            chunkList.Add(GenerateLandMesh(chunk, heightMultiplier, inputHeightCurve, 1)); // FIXME: hardcoded LOD value of 1
         }
 
         return chunkList;
     }
 
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve inputHeightCurve, int levelOfDetail) {
+    public static MeshData GenerateLandMesh(float[,] heightMap, float heightMultiplier, AnimationCurve inputHeightCurve, int levelOfDetail) {
         AnimationCurve heightCurve = new AnimationCurve(inputHeightCurve.keys);
         
         int width = heightMap.GetLength(0);

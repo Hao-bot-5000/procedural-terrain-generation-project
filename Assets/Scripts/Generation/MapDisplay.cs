@@ -9,7 +9,7 @@ public class MapDisplay : MonoBehaviour {
 
     public MeshFilter waterFilter;
 
-    public Material terrainMaterial;
+    public Material landMaterial;
     public Material waterMaterial;
 
     Dictionary<string, GameObject> children;
@@ -25,13 +25,13 @@ public class MapDisplay : MonoBehaviour {
         textureRenderer.transform.localScale = new Vector3(-texture.width, 1, texture.height);
     }
 
-    public void DrawTerrainMesh(MeshData meshData, Texture2D texture) {
+    public void DrawLandMesh(MeshData meshData, Texture2D texture) {
         meshFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue);
         meshRenderer.sharedMaterial.mainTexture = texture;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
 
-    public void DrawTerrainMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
+    public void DrawLandMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
         if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
@@ -50,7 +50,7 @@ public class MapDisplay : MonoBehaviour {
             MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
             MeshCollider chunkMeshCollider = chunkExists ? chunkObject.GetComponent<MeshCollider>() : chunkObject.AddComponent<MeshCollider>();
 
-            chunkMeshRenderer.sharedMaterial = terrainMaterial;
+            chunkMeshRenderer.sharedMaterial = landMaterial;
             chunkMeshRenderer.material.mainTexture = textureList[i];
             chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh();
             chunkMeshCollider.sharedMesh = chunkMeshFilter.sharedMesh;
@@ -84,7 +84,7 @@ public class MapDisplay : MonoBehaviour {
             MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
             
             if (!chunkExists) {
-                EnvironmentMovement meshMovementScript = chunkObject.AddComponent<EnvironmentMovement>();
+                TerrainMovement meshMovementScript = chunkObject.AddComponent<TerrainMovement>();
                 // Could add code here to modify wave properties
             }
 

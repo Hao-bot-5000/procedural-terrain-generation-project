@@ -375,7 +375,7 @@ MonoBehaviour:
   meshRenderer: {fileID: 568715404}
   meshCollider: {fileID: 568715407}
   waterFilter: {fileID: 1380852450}
-  terrainMaterial: {fileID: 2100000, guid: 48812fe5bf4b1124f9b3316c4dcadf51, type: 2}
+  landMaterial: {fileID: 2100000, guid: 48812fe5bf4b1124f9b3316c4dcadf51, type: 2}
   waterMaterial: {fileID: 2100000, guid: 16c32aa25c789f44494b97ab4217c493, type: 2}
 --- !u!114 &577398931
 MonoBehaviour:
@@ -721,7 +721,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1380852448}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 275c292897e97b8458b2e7723a9ed34f, type: 3}
+  m_Script: {fileID: 11500000, guid: 0de33615dab956c468a71e801ee3f632, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   scale: 0.25
