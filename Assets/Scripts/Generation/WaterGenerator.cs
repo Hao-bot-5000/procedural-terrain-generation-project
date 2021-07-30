@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public static class WaterGenerator {
-    // NOTE: water
+    // APPARENTLY DECENT DOCUMENTATION ON SHADERS AND TUTORIALS ON 
+    // HOW TO GENERATE FLATSHADED LOWPOLY WATER SHADERS ARE NONEXISTENT
     public static List<MeshData> GenerateWaterMeshes(int chunkSize, int mapSize) {
         chunkSize++;
 

@@ -61,7 +61,6 @@ public class MapDisplay : MonoBehaviour {
         }
     }
 
-    // NOTE: water
     public void DrawWaterMesh(MeshData meshData) {
         waterFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue, isDynamic: true);
     }
