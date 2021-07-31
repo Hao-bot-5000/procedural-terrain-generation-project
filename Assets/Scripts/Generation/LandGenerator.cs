@@ -3,30 +3,30 @@ using System;
 using System.Collections.Generic;
 
 public static class LandGenerator {
-    public static List<MeshData> GenerateLandMeshes(float[,] heightMap, float heightMultiplier, int chunkSize, int mapSize, AnimationCurve inputHeightCurve) {
-        chunkSize++;
-        int width = heightMap.GetLength(0);
-        int height = heightMap.GetLength(1);
+    // public static List<MeshData> GenerateLandMeshes(float[,] heightMap, float heightMultiplier, int chunkSize, int mapSize, AnimationCurve inputHeightCurve) {
+    //     chunkSize++;
+    //     int width = heightMap.GetLength(0);
+    //     int height = heightMap.GetLength(1);
 
-        List<MeshData> chunkList = new List<MeshData>();
+    //     List<MeshData> chunkList = new List<MeshData>();
 
-        // Really bad runtime, but best simple solution I can come up with (that does not require me to rewrite everything)
-        for (int i = 0; i < mapSize * mapSize; i++) {
-            float[,] chunk = new float[chunkSize, chunkSize];
-            int offsetX = (i % mapSize) * (chunkSize - (i % mapSize != 0 ? 1 : 0));
-            int offsetZ = (i / mapSize) * (chunkSize - (i >= mapSize ? 1 : 0));
-            // Debug.Log(i + ": " + offsetX + " " + offsetZ);
-            for (int z = 0; z < chunkSize; z++) {
-                for (int x = 0; x < chunkSize; x++) {
-                    // Debug.Log(i + " - [" + x + ", " + z + "] - " + (x + offsetX) + " " + (z + offsetZ));
-                    chunk[x, z] = heightMap[x + offsetX, z + offsetZ];
-                }
-            }
-            chunkList.Add(GenerateLandMesh(chunk, heightMultiplier, inputHeightCurve, 1)); // FIXME: hardcoded LOD value of 1
-        }
+    //     // Really bad runtime, but best simple solution I can come up with (that does not require me to rewrite everything)
+    //     for (int i = 0; i < mapSize * mapSize; i++) {
+    //         float[,] chunk = new float[chunkSize, chunkSize];
+    //         int offsetX = (i % mapSize) * (chunkSize - (i % mapSize != 0 ? 1 : 0));
+    //         int offsetZ = (i / mapSize) * (chunkSize - (i >= mapSize ? 1 : 0));
+    //         // Debug.Log(i + ": " + offsetX + " " + offsetZ);
+    //         for (int z = 0; z < chunkSize; z++) {
+    //             for (int x = 0; x < chunkSize; x++) {
+    //                 // Debug.Log(i + " - [" + x + ", " + z + "] - " + (x + offsetX) + " " + (z + offsetZ));
+    //                 chunk[x, z] = heightMap[x + offsetX, z + offsetZ];
+    //             }
+    //         }
+    //         chunkList.Add(GenerateLandMesh(chunk, heightMultiplier, inputHeightCurve, 1)); // FIXME: hardcoded LOD value of 1
+    //     }
 
-        return chunkList;
-    }
+    //     return chunkList;
+    // }
 
     public static MeshData GenerateLandMesh(float[,] heightMap, float heightMultiplier, AnimationCurve inputHeightCurve, int levelOfDetail) {
         AnimationCurve heightCurve = new AnimationCurve(inputHeightCurve.keys);
