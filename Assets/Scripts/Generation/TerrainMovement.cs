@@ -46,6 +46,6 @@ public class TerrainMovement : MonoBehaviour {
         float scaleX = x * scale + xOffset;
         float scaleY = y * scale + yOffset;
 
-        return Mathf.PerlinNoise(scaleX, scaleY) * strength;
+        return (Mathf.PerlinNoise(scaleX, scaleY) * 2 - 1) * strength;
     }
 }

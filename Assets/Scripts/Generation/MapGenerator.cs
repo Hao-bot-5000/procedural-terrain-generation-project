@@ -7,7 +7,7 @@ public class MapGenerator : MonoBehaviour {
     public const int mapSize = 30; // 30 x 30 chunks
     const int verticesPerSide = chunkSize * mapSize + 1;
 
-    public const float waterLevel = 11f;
+    public const float waterLevel = 11.5f;
     public const float meshScale = 10f;
 
 	public enum DrawMode { NoiseMap, ColorMap, FalloffMap, TreeMap, Mesh, Chunks };
