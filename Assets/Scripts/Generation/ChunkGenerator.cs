@@ -22,11 +22,9 @@ public static class ChunkGenerator {
                 }
             }
 
-            MeshData landMeshData = LandGenerator.GenerateLandMesh(chunkHeightMap, heightMultiplier, inputHeightCurve, 1); // FIXME: hardcoded LOD value of 1
-            Texture2D landTexture = TextureGenerator.TextureFromColorMap(chunkColorMap, chunkSize, chunkSize);
-            MeshData waterMeshData = WaterGenerator.GenerateWaterMesh(chunkSize, chunkSize, 1); // FIXME: hardcoded LOD value of 1
-
-            chunkList.Add(new ChunkData(landMeshData, landTexture, waterMeshData));
+            ChunkData chunkData = new ChunkData(chunkSize, 1, chunkHeightMap, heightMultiplier, inputHeightCurve);
+            chunkData.UpdateLandTexture(TextureGenerator.TextureFromColorMap(chunkColorMap, chunkSize, chunkSize));
+            chunkList.Add(chunkData);
         }
     
         return chunkList;
@@ -40,12 +38,25 @@ public class ChunkData {
     // Texture2D waterTexture;
     public List<GameObject> items;
 
-    public ChunkData(MeshData landMeshData, Texture2D landTexture, MeshData waterMeshData) {
-        this.landMeshData = landMeshData;
-        this.landTexture = landTexture;
-        this.waterMeshData = waterMeshData;
-        this.items = new List<GameObject>();
+    public int size;
+    public int lod; // useful for future performance optimizations
+
+    public ChunkData(int size, int lod, float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve) {
+        this.size = size;
+        this.lod = lod;
+
+        landMeshData = LandGenerator.GenerateLandMesh(heightMap, heightMultiplier, heightCurve, lod);
+        waterMeshData = WaterGenerator.GenerateWaterMesh(size, size, lod);
+        items = new List<GameObject>();
     }
+
+    public void UpdateLandTexture(Texture2D texture) {
+        landTexture = texture;
+    }
+
+    // public void UpdateWaterTexture(Texture2D texture) {
+    //     waterTexture = texture;
+    // }
 
     public void AddObject(GameObject item) {
         items.Add(item);
