@@ -2,15 +2,17 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class MapDisplay : MonoBehaviour {
+    // Used for displaying other DrawMode types
     public Renderer textureRenderer;
     public MeshFilter meshFilter;
     public MeshRenderer meshRenderer;
     public MeshCollider meshCollider;
-
     public MeshFilter waterFilter;
 
+    // Used for displaying Chunk DrawMode
     public Material landMaterial;
     public Material waterMaterial;
+    public LayerMask waterMask;
 
     Dictionary<string, GameObject> children;
     
@@ -60,6 +62,7 @@ public class MapDisplay : MonoBehaviour {
             landObject.transform.localScale = Vector3.one * scale;
 
             GameObject waterObject = chunkExists ? chunkObject.transform.GetChild(1).gameObject : new GameObject("water");
+            waterObject.layer = waterMask;
 
             MeshRenderer waterMeshRenderer = waterObject.GetComponent<MeshRenderer>() ? waterObject.GetComponent<MeshRenderer>() : waterObject.AddComponent<MeshRenderer>();
             MeshFilter waterMeshFilter = waterObject.GetComponent<MeshFilter>() ? waterObject.GetComponent<MeshFilter>() : waterObject.AddComponent<MeshFilter>();
@@ -79,7 +82,7 @@ public class MapDisplay : MonoBehaviour {
     }
 
     public void DrawLandMesh(MeshData meshData, Texture2D texture) {
-        meshFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue);
+        meshFilter.sharedMesh = meshData.CreateMesh();
         meshRenderer.sharedMaterial.mainTexture = texture;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
@@ -115,7 +118,7 @@ public class MapDisplay : MonoBehaviour {
     // }
 
     public void DrawWaterMesh(MeshData meshData) {
-        waterFilter.sharedMesh = meshData.CreateMesh(useInt32: meshData.vertices.Length > ushort.MaxValue, isDynamic: true);
+        waterFilter.sharedMesh = meshData.CreateMesh(isDynamic: true);
     }
 
     // public void DrawWaterMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float waterLevel, float scale) {

@@ -41,6 +41,7 @@ public static class WaterGenerator {
             }
         }
 
+        // meshData.MakeDoubleSided();
         meshData.UseFlatShading();
 
         return meshData;

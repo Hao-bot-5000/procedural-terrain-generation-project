@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 public class MeshData {
     public Vector3[] vertices;
@@ -34,11 +36,24 @@ public class MeshData {
         uvs = flatShadedUVs;
     }
 
-    public Mesh CreateMesh(bool useInt32=false, bool isDynamic=false) {
+    // public void MakeDoubleSided() {
+    //     List<int> doubleSidedTriangles = new List<int>(triangles);
+
+    //     int[] reversedTriangles = new int[triangles.Length];
+    //     for (int i = 0; i < triangles.Length; i++) {
+    //         reversedTriangles[i] = triangles[triangles.Length - 1 - i];
+    //     }
+
+    //     doubleSidedTriangles.AddRange(reversedTriangles);
+
+    //     triangles = doubleSidedTriangles.ToArray();
+    // }
+
+    public Mesh CreateMesh(bool isDynamic=false) {
         Mesh mesh = new Mesh();
 
         // Mesh max vertex count from ~65k (16-bit) -> ~4b (32-bit)
-        if (useInt32) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        if (vertices.Length > ushort.MaxValue) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         if (isDynamic) mesh.MarkDynamic();
 
         mesh.vertices = vertices;
