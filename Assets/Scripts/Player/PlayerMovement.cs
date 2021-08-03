@@ -8,20 +8,23 @@ public class PlayerMovement : MonoBehaviour {
     public Transform perspective;
     public float sensitivity = 2f;
 
+    public int chunkLayer;
+
     CharacterController playerController;
-    Vector3 playerVelocity;
-    
+    Vector3 velocity;
     Vector3 surfaceNormal;
+
+    GameObject currentChunk;
 
     float yaw = 0f;
     float pitch = 0f;
 
     void Start() {
         playerController = GetComponent<CharacterController>();
-        playerVelocity = Vector3.zero;
-        
+        velocity = Vector3.zero;
         surfaceNormal = Vector3.up;
-        // gravitationalPull = 0f;
+
+        // currentChunk = GetCurrentChunk();
 
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -41,12 +44,18 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    void OnTriggerEnter(Collider other) {
+        if (other.gameObject.layer == chunkLayer) {
+            currentChunk = other.gameObject;
+        }
+    }
+
     private void MovePlayer() {
         Vector3 localXMovement = Input.GetAxis("Horizontal") * transform.right * movementSpeed;
         Vector3 localYMovement = CalculateVerticalMovement();
         Vector3 localZMovement = Input.GetAxis("Vertical") * transform.forward * movementSpeed;
 
-        playerVelocity = localXMovement + localYMovement + localZMovement;
+        velocity = localXMovement + localYMovement + localZMovement;
 
         /* 
          * FIXME: 
@@ -55,15 +64,15 @@ public class PlayerMovement : MonoBehaviour {
          */
         if (playerController.isGrounded) {
             float normalAngle = Vector3.Angle(transform.up, surfaceNormal);
-            Debug.Log(normalAngle);
+            // Debug.Log(normalAngle);
 
             if (normalAngle > playerController.slopeLimit) {
-                playerVelocity.x += (1f - surfaceNormal.y) * surfaceNormal.x * slideSpeed;
-                playerVelocity.z += (1f - surfaceNormal.y) * surfaceNormal.z * slideSpeed;
+                velocity.x += (1f - surfaceNormal.y) * surfaceNormal.x * slideSpeed;
+                velocity.z += (1f - surfaceNormal.y) * surfaceNormal.z * slideSpeed;
             }
         }
 
-        playerController.Move(playerVelocity * Time.deltaTime);
+        playerController.Move(velocity * Time.deltaTime);
     }
 
     private void RotatePlayer() {
@@ -84,17 +93,17 @@ public class PlayerMovement : MonoBehaviour {
         if (playerController.isGrounded) {
             if (Input.GetButtonDown("Jump")) {
                 float jumpForce = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
-                playerVelocity.y = jumpForce;
+                velocity.y = jumpForce;
             }
             else {
-                playerVelocity.y = Physics.gravity.y; // -playerController.stepOffset / Time.deltaTime;
+                velocity.y = Physics.gravity.y * 4; // -playerController.stepOffset / Time.deltaTime;
             }
         }
         else {
-            playerVelocity.y += Physics.gravity.y * Time.deltaTime;
+            velocity.y += Physics.gravity.y * Time.deltaTime;
         }
 
-        return transform.up * playerVelocity.y;
+        return transform.up * velocity.y;
     }
 
     private Vector3 CalculateSurfaceNormal(Vector3 surfaceContactPoint) {

@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 444606820}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -243,6 +243,7 @@ MonoBehaviour:
   slideSpeed: 25
   perspective: {fileID: 963194228}
   sensitivity: 2
+  chunkLayer: 6
 --- !u!1 &568715403
 GameObject:
   m_ObjectHideFlags: 0
@@ -377,9 +378,8 @@ MonoBehaviour:
   waterFilter: {fileID: 1380852450}
   landMaterial: {fileID: 2100000, guid: 48812fe5bf4b1124f9b3316c4dcadf51, type: 2}
   waterMaterial: {fileID: 2100000, guid: 16c32aa25c789f44494b97ab4217c493, type: 2}
-  waterMask:
-    serializedVersion: 2
-    m_Bits: 16
+  chunkLayer: 6
+  waterLayer: 4
 --- !u!114 &577398931
 MonoBehaviour:
   m_ObjectHideFlags: 0

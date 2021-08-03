@@ -5,25 +5,25 @@ using UnityEngine;
 public static class ChunkGenerator {
     
     public static List<ChunkData> GenerateChunks(float[,] heightMap, Color[] colorMap, int chunkSize, int mapSize, int verticesPerSide, float heightMultiplier, AnimationCurve inputHeightCurve) {
-        chunkSize++;
+        int chunkVertices = chunkSize + 1;
         List<ChunkData> chunkList = new List<ChunkData>();
 
         for (int i = 0; i < mapSize * mapSize; i++) {
-            float[,] chunkHeightMap = new float[chunkSize, chunkSize];
-            Color[] chunkColorMap = new Color[chunkSize * chunkSize];
+            float[,] chunkHeightMap = new float[chunkVertices, chunkVertices];
+            Color[] chunkColorMap = new Color[chunkVertices * chunkVertices];
 
-            int offsetX = (i % mapSize) * (chunkSize - (i % mapSize != 0 ? 1 : 0));
-            int offsetZ = (i / mapSize) * (chunkSize - (i >= mapSize ? 1 : 0));
+            int offsetX = (i % mapSize) * (chunkVertices - (i % mapSize != 0 ? 1 : 0));
+            int offsetZ = (i / mapSize) * (chunkVertices - (i >= mapSize ? 1 : 0));
 
-            for (int z = 0; z < chunkSize; z++) {
-                for (int x = 0; x < chunkSize; x++) {
+            for (int z = 0; z < chunkVertices; z++) {
+                for (int x = 0; x < chunkVertices; x++) {
                     chunkHeightMap[x, z] = heightMap[x + offsetX, z + offsetZ];
-                    chunkColorMap[z * chunkSize + x] = colorMap[(z + offsetZ) * verticesPerSide + (x + offsetX)];
+                    chunkColorMap[z * chunkVertices + x] = colorMap[(z + offsetZ) * verticesPerSide + (x + offsetX)];
                 }
             }
 
             ChunkData chunkData = new ChunkData(chunkSize, 1, chunkHeightMap, heightMultiplier, inputHeightCurve);
-            chunkData.UpdateLandTexture(TextureGenerator.TextureFromColorMap(chunkColorMap, chunkSize, chunkSize));
+            chunkData.UpdateLandTexture(TextureGenerator.TextureFromColorMap(chunkColorMap, chunkVertices, chunkVertices));
             chunkList.Add(chunkData);
         }
     
@@ -46,7 +46,7 @@ public class ChunkData {
         this.lod = lod;
 
         landMeshData = LandGenerator.GenerateLandMesh(heightMap, heightMultiplier, heightCurve, lod);
-        waterMeshData = WaterGenerator.GenerateWaterMesh(size, size, lod);
+        waterMeshData = WaterGenerator.GenerateWaterMesh(size + 1, size + 1, lod);
         items = new List<GameObject>();
     }
 

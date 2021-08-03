@@ -12,7 +12,8 @@ public class MapDisplay : MonoBehaviour {
     // Used for displaying Chunk DrawMode
     public Material landMaterial;
     public Material waterMaterial;
-    public LayerMask waterMask;
+    public int chunkLayer;
+    public int waterLayer;
 
     Dictionary<string, GameObject> children;
     
@@ -27,7 +28,7 @@ public class MapDisplay : MonoBehaviour {
         textureRenderer.transform.localScale = new Vector3(-texture.width, 1, texture.height);
     }
 
-    public void DrawChunks(List<ChunkData> chunkDataList, int chunkSize, int mapSize, float waterLevel, float scale) {
+    public void DrawChunks(List<ChunkData> chunkDataList, /*int chunkSize, */int mapSize, float mapHeightMultiplier, float waterLevel, float scale) {
         if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
@@ -35,14 +36,25 @@ public class MapDisplay : MonoBehaviour {
 
         for (int i = 0; i < chunkDataList.Count; i++) {
             bool chunkExists = children.ContainsKey("chunk (" + i + ")");
+            ChunkData chunkData = chunkDataList[i];
+            // Debug.Log(chunkSize + " | " + chunkData.size);
 
             GameObject chunkObject = chunkExists ? children["chunk (" + i + ")"] : new GameObject("chunk (" + i + ")");
-            float topLeftX = -(chunkSize / 2f) * (mapSize - 1);
-            float topLeftZ =  (chunkSize / 2f) * (mapSize - 1);
-            Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkSize, 0, topLeftZ - ((i / mapSize)) * chunkSize);
+            chunkObject.layer = chunkLayer;
+
+            BoxCollider chunkTrigger = chunkObject.GetComponent<BoxCollider>() ? chunkObject.GetComponent<BoxCollider>() : chunkObject.AddComponent<BoxCollider>();
+
+            float topLeftX = -(chunkData.size / 2f) * (mapSize - 1);
+            float topLeftZ =  (chunkData.size / 2f) * (mapSize - 1);
+            Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkData.size, 0, topLeftZ - ((i / mapSize)) * chunkData.size);
             
             chunkObject.transform.position = position * scale;
             chunkObject.transform.parent = transform;
+
+            float triggerPadding = 4f;
+            chunkTrigger.center = Vector3.up * (mapHeightMultiplier + triggerPadding) * 0.5f * scale;
+            chunkTrigger.size = new Vector3(chunkData.size, mapHeightMultiplier + triggerPadding, chunkData.size) * scale;
+            chunkTrigger.isTrigger = true;
 
             GameObject landObject = chunkExists ? chunkObject.transform.GetChild(0).gameObject : new GameObject("land");
 
@@ -51,10 +63,10 @@ public class MapDisplay : MonoBehaviour {
             MeshCollider landMeshCollider = landObject.GetComponent<MeshCollider>() ? landObject.GetComponent<MeshCollider>() : landObject.AddComponent<MeshCollider>();
 
             // Debug.Log(landObject + " | " + landMeshRenderer + " | " + landObject.AddComponent<MeshRenderer>());
-            Debug.Log(chunkDataList[i].landTexture);
+            // Debug.Log(chunkData.landTexture);
             landMeshRenderer.sharedMaterial = landMaterial;
-            landMeshRenderer.material.mainTexture = chunkDataList[i].landTexture;
-            landMeshFilter.sharedMesh = chunkDataList[i].landMeshData.CreateMesh();
+            landMeshRenderer.material.mainTexture = chunkData.landTexture;
+            landMeshFilter.sharedMesh = chunkData.landMeshData.CreateMesh();
             landMeshCollider.sharedMesh = landMeshFilter.sharedMesh;
 
             landObject.transform.position = position * scale;
@@ -62,7 +74,7 @@ public class MapDisplay : MonoBehaviour {
             landObject.transform.localScale = Vector3.one * scale;
 
             GameObject waterObject = chunkExists ? chunkObject.transform.GetChild(1).gameObject : new GameObject("water");
-            waterObject.layer = waterMask;
+            waterObject.layer = waterLayer;
 
             MeshRenderer waterMeshRenderer = waterObject.GetComponent<MeshRenderer>() ? waterObject.GetComponent<MeshRenderer>() : waterObject.AddComponent<MeshRenderer>();
             MeshFilter waterMeshFilter = waterObject.GetComponent<MeshFilter>() ? waterObject.GetComponent<MeshFilter>() : waterObject.AddComponent<MeshFilter>();
@@ -71,7 +83,7 @@ public class MapDisplay : MonoBehaviour {
 
             waterMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             waterMeshRenderer.sharedMaterial = waterMaterial;
-            waterMeshFilter.sharedMesh = chunkDataList[i].waterMeshData.CreateMesh(isDynamic: true);
+            waterMeshFilter.sharedMesh = chunkData.waterMeshData.CreateMesh(isDynamic: true);
 
             waterObject.transform.position = (position + (Vector3.up * waterLevel)) * scale;
             waterObject.transform.parent = chunkObject.transform;
