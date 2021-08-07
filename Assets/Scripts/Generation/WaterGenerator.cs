@@ -2,20 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public static class WaterGenerator {
-    // APPARENTLY DECENT DOCUMENTATION ON SHADERS AND TUTORIALS ON 
-    // HOW TO GENERATE FLATSHADED LOWPOLY WATER SHADERS ARE NONEXISTENT
-    // public static List<MeshData> GenerateWaterMeshes(int chunkSize, int mapSize) {
-    //     chunkSize++;
-
-    //     List<MeshData> chunkList = new List<MeshData>();
-
-    //     for (int i = 0; i < mapSize * mapSize; i++) {
-    //         chunkList.Add(GenerateWaterMesh(chunkSize, chunkSize, 1)); // FIXME: hardcoded LOD value of 1
-    //     }
-
-    //     return chunkList;
-    // }
-
     public static MeshData GenerateWaterMesh(int width, int height, int levelOfDetail) {
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
@@ -33,17 +19,14 @@ public static class WaterGenerator {
 
                 // Create triangles
                 if (x < width - 1 && z < height - 1) {
-                    meshData.AddTriangle(vertexIndex, vertexIndex + verticesPerLine + 1, vertexIndex + verticesPerLine);
-                    meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex, vertexIndex + 1);
+                    meshData.AddTriangle(vertexIndex, vertexIndex + 1, vertexIndex + verticesPerLine);
+                    meshData.AddTriangle(vertexIndex + verticesPerLine, vertexIndex + 1, vertexIndex + verticesPerLine + 1);
                 }
                 
                 vertexIndex++;
             }
         }
-
-        // meshData.MakeDoubleSided();
-        meshData.UseFlatShading();
-
+        
         return meshData;
     }
 }
