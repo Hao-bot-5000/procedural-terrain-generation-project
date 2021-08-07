@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 444606817}
   - component: {fileID: 444606816}
   - component: {fileID: 444606820}
+  - component: {fileID: 444606821}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -244,6 +245,22 @@ MonoBehaviour:
   perspective: {fileID: 963194228}
   sensitivity: 2
   chunkLayer: 6
+--- !u!114 &444606821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444606815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08381263dd7adfb4c951b69ce48890ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  perspective: {fileID: 963194228}
+  chunkLayer: 6
+  underwaterFogColor: {r: 0.15, g: 0.55, b: 0.75, a: 0.6}
+  underwaterFogDensity: 0.01
 --- !u!1 &568715403
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,7 +660,6 @@ GameObject:
   - component: {fileID: 1380852449}
   - component: {fileID: 1380852450}
   - component: {fileID: 1380852451}
-  - component: {fileID: 1380852452}
   m_Layer: 4
   m_Name: Water
   m_TagString: Untagged
@@ -715,21 +731,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1380852452
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1380852448}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0de33615dab956c468a71e801ee3f632, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scale: 0.25
-  strength: 0.5
-  frequency: 0.25
 --- !u!1 &1498508928
 GameObject:
   m_ObjectHideFlags: 0
