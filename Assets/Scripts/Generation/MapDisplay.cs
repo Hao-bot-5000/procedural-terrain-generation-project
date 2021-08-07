@@ -28,7 +28,7 @@ public class MapDisplay : MonoBehaviour {
         textureRenderer.transform.localScale = new Vector3(-texture.width, 1, texture.height);
     }
 
-    public void DrawChunks(List<ChunkData> chunkDataList, /*int chunkSize, */int mapSize, float mapHeightMultiplier, float waterLevel, float scale) {
+    public void DrawChunks(List<ChunkData> chunkDataList, /*int chunkSize, */int mapSize, float mapHeightMultiplier, float waterLevel) {
         if (children == null) children = new Dictionary<string, GameObject>();
         foreach (Transform child in transform) {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
@@ -48,12 +48,12 @@ public class MapDisplay : MonoBehaviour {
             float topLeftZ =  (chunkData.size / 2f) * (mapSize - 1);
             Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkData.size, 0, topLeftZ - ((i / mapSize)) * chunkData.size);
             
-            chunkObject.transform.position = position * scale;
+            chunkObject.transform.position = position * chunkData.scale;
             chunkObject.transform.parent = transform;
 
             float triggerPadding = 4f;
-            chunkTrigger.center = Vector3.up * (mapHeightMultiplier + triggerPadding) * 0.5f * scale;
-            chunkTrigger.size = new Vector3(chunkData.size, mapHeightMultiplier + triggerPadding, chunkData.size) * scale;
+            chunkTrigger.center = Vector3.up * (mapHeightMultiplier + triggerPadding) * 0.5f * chunkData.scale;
+            chunkTrigger.size = new Vector3(chunkData.size, mapHeightMultiplier + triggerPadding, chunkData.size) * chunkData.scale;
             chunkTrigger.isTrigger = true;
 
             GameObject landObject = chunkExists ? chunkObject.transform.GetChild(0).gameObject : new GameObject("land");
@@ -69,25 +69,23 @@ public class MapDisplay : MonoBehaviour {
             landMeshFilter.sharedMesh = chunkData.landMeshData.CreateMesh();
             landMeshCollider.sharedMesh = landMeshFilter.sharedMesh;
 
-            landObject.transform.position = position * scale;
+            landObject.transform.position = position * chunkData.scale;
             landObject.transform.parent = chunkObject.transform;
-            landObject.transform.localScale = Vector3.one * scale;
+            landObject.transform.localScale = Vector3.one * chunkData.scale;
 
             GameObject waterObject = chunkExists ? chunkObject.transform.GetChild(1).gameObject : new GameObject("water");
             waterObject.layer = waterLayer;
 
             MeshRenderer waterMeshRenderer = waterObject.GetComponent<MeshRenderer>() ? waterObject.GetComponent<MeshRenderer>() : waterObject.AddComponent<MeshRenderer>();
             MeshFilter waterMeshFilter = waterObject.GetComponent<MeshFilter>() ? waterObject.GetComponent<MeshFilter>() : waterObject.AddComponent<MeshFilter>();
-            TerrainMovement meshMovementScript = waterObject.GetComponent<TerrainMovement>() ? waterObject.GetComponent<TerrainMovement>() : waterObject.AddComponent<TerrainMovement>();
-            // Could add code here to modify wave properties
 
             waterMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             waterMeshRenderer.sharedMaterial = waterMaterial;
             waterMeshFilter.sharedMesh = chunkData.waterMeshData.CreateMesh(isDynamic: true);
 
-            waterObject.transform.position = (position + (Vector3.up * waterLevel)) * scale;
+            waterObject.transform.position = (position + (Vector3.up * waterLevel)) * chunkData.scale;
             waterObject.transform.parent = chunkObject.transform;
-            waterObject.transform.localScale = Vector3.one * scale;
+            waterObject.transform.localScale = Vector3.one * chunkData.scale;
         }
 
 
@@ -99,72 +97,9 @@ public class MapDisplay : MonoBehaviour {
         meshCollider.sharedMesh = meshFilter.sharedMesh;
     }
 
-    // public void DrawLandMeshes(List<MeshData> meshDataList, List<Texture2D> textureList, int chunkSize, int mapSize, float scale) {
-    //     if (children == null) children = new Dictionary<string, GameObject>();
-    //     foreach (Transform child in transform) {
-    //         if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
-    //     }
-        
-    //     for (int i = 0; i < meshDataList.Count; i++) {
-    //         bool chunkExists = children.ContainsKey("chunk (" + i + ")");
-
-    //         GameObject chunkObject = chunkExists ? children["chunk (" + i + ")"] : new GameObject("chunk (" + i + ")");
-    //         float topLeftX = -(chunkSize / 2f) * (mapSize - 1);
-    //         float topLeftZ =  (chunkSize / 2f) * (mapSize - 1);
-    //         Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkSize, 0, topLeftZ - ((i / mapSize)) * chunkSize);
-    //         // Debug.Log(i + ": " + position);
-
-    //         MeshRenderer chunkMeshRenderer = chunkExists ? chunkObject.GetComponent<MeshRenderer>() : chunkObject.AddComponent<MeshRenderer>();
-    //         MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
-    //         MeshCollider chunkMeshCollider = chunkExists ? chunkObject.GetComponent<MeshCollider>() : chunkObject.AddComponent<MeshCollider>();
-
-    //         chunkMeshRenderer.sharedMaterial = landMaterial;
-    //         chunkMeshRenderer.material.mainTexture = textureList[i];
-    //         chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh();
-    //         chunkMeshCollider.sharedMesh = chunkMeshFilter.sharedMesh;
-
-    //         chunkObject.transform.position = position * scale;
-    //         chunkObject.transform.parent = transform;
-    //         chunkObject.transform.localScale = Vector3.one * scale;
-    //     }
-    // }
-
     public void DrawWaterMesh(MeshData meshData) {
         waterFilter.sharedMesh = meshData.CreateMesh(isDynamic: true);
     }
-
-    // public void DrawWaterMeshes(List<MeshData> meshDataList, int chunkSize, int mapSize, float waterLevel, float scale) {
-    //     if (children == null) children = new Dictionary<string, GameObject>();
-    //     foreach (Transform child in transform) {
-    //         if (child.name.StartsWith("water")) children.Add(child.name, child.gameObject);
-    //     }
-
-    //     for (int i = 0; i < meshDataList.Count; i++) {
-    //         bool chunkExists = children.ContainsKey("water (" + i + ")");
-
-    //         GameObject chunkObject = chunkExists ? children["water (" + i + ")"] : new GameObject("water (" + i + ")");
-    //         float topLeftX = -(chunkSize / 2f) * (mapSize - 1);
-    //         float topLeftZ =  (chunkSize / 2f) * (mapSize - 1);
-    //         Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkSize, waterLevel, topLeftZ - ((i / mapSize)) * chunkSize);
-    //         // Debug.Log(i + ": " + position);
-
-    //         MeshRenderer chunkMeshRenderer = chunkExists ? chunkObject.GetComponent<MeshRenderer>() : chunkObject.AddComponent<MeshRenderer>();
-    //         MeshFilter chunkMeshFilter = chunkExists ? chunkObject.GetComponent<MeshFilter>() : chunkObject.AddComponent<MeshFilter>();
-            
-    //         if (!chunkExists) {
-    //             TerrainMovement meshMovementScript = chunkObject.AddComponent<TerrainMovement>();
-    //             // Could add code here to modify wave properties
-    //         }
-
-    //         chunkMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-    //         chunkMeshRenderer.sharedMaterial = waterMaterial;
-    //         chunkMeshFilter.sharedMesh = meshDataList[i].CreateMesh(isDynamic: true);
-
-    //         chunkObject.transform.position = position * scale;
-    //         chunkObject.transform.parent = transform;
-    //         chunkObject.transform.localScale = Vector3.one * scale;
-    //     }
-    // }
 
     public void DrawTrees(MeshData meshData, float[,] treeMap) {
         if (treeMap == null) return;
