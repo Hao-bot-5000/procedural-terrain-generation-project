@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class ChunkGenerator {
-    
-    public static List<ChunkData> GenerateChunks(float[,] heightMap, Color[] colorMap, int chunkSize, int mapSize, int verticesPerSide, float heightMultiplier, AnimationCurve inputHeightCurve) {
+    public static List<ChunkData> GenerateChunks(float[,] heightMap, Color[] colorMap, int chunkSize, int mapSize, int verticesPerSide, float scale, float heightMultiplier, AnimationCurve inputHeightCurve) {
         int chunkVertices = chunkSize + 1;
         List<ChunkData> chunkList = new List<ChunkData>();
 
@@ -22,7 +21,7 @@ public static class ChunkGenerator {
                 }
             }
 
-            ChunkData chunkData = new ChunkData(chunkSize, 1, chunkHeightMap, heightMultiplier, inputHeightCurve);
+            ChunkData chunkData = new ChunkData(chunkSize, scale, 1, chunkHeightMap, heightMultiplier, inputHeightCurve);
             chunkData.UpdateLandTexture(TextureGenerator.TextureFromColorMap(chunkColorMap, chunkVertices, chunkVertices));
             chunkList.Add(chunkData);
         }
@@ -39,10 +38,12 @@ public class ChunkData {
     public List<GameObject> items;
 
     public int size;
+    public float scale;
     public int lod; // useful for future performance optimizations
 
-    public ChunkData(int size, int lod, float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve) {
+    public ChunkData(int size, float scale, int lod, float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve) {
         this.size = size;
+        this.scale = scale;
         this.lod = lod;
 
         landMeshData = LandGenerator.GenerateLandMesh(heightMap, heightMultiplier, heightCurve, lod);
