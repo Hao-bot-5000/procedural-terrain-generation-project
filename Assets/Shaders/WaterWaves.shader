@@ -11,17 +11,83 @@ Shader "Custom/WaterWaves" {
         // _RandomSpeed("Random Speed", Range(0, 25)) = 0.5
     }
 
+    CGINCLUDE
+        #include "UnityCG.cginc"
+
+        float _WaveLength;
+        float _WaveHeight;
+        float _WaveSpeed;
+
+        float4 displace_vert(float4 v0) {
+            // Calculate Gerstner wave movements 
+            float p = (v0.x + v0.z) / 16;
+            half k = 2 * UNITY_PI / _WaveLength;
+            float f = k * (p - _WaveSpeed * _Time.y);
+            v0.x += _WaveHeight * cos(f);
+            v0.y += _WaveHeight * sin(f);
+
+            return v0;
+        }
+
+    ENDCG
+
+    // FIXME: Water meshes can cause overlapping alpha values
+    // https://answers.unity.com/questions/1660559/how-could-i-prevent-transparency-overlapping.html
     SubShader {
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        // Tags { "RenderType"="Opaque" }
+        Tags { "Queue"="Transparent" "IgnoreProjector"="true" "RenderType"="Transparent" }
 
         LOD 200
+        // ZWrite Off Blend SrcAlpha OneMinusSrcAlpha Cull Off
         Cull Off
 
+        // Depth buffer pass -- https://forum.unity.com/threads/transparent-depth-shader-good-for-ghosts.149511/
+        Pass {
+            ZWrite On
+            ColorMask 0
+
+            // Stencil {
+            //     Ref 0
+            //     Comp Equal
+            //     Pass IncrSat 
+            //     Fail IncrSat 
+            // }
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct v2f {
+                float4 pos : SV_POSITION;
+            };
+
+            // fixed4 _Color;
+    
+            v2f vert(appdata_full v) {
+                float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
+                v.vertex = mul(unity_WorldToObject, v0);
+
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+    
+            half4 frag(v2f i) : COLOR {
+                return 0; // fixed4(_Color);
+            }
+            
+            ENDCG
+        }
+
+        // BlendOp Add
+        // Blend One OneMinusSrcAlpha
+        // ZWrite Off
+        // AlphaTest Off
+
         CGPROGRAM
-        #pragma surface surf Standard alpha fullforwardshadows vertex:vert
-        // #pragma surface surf Standard fullforwardshadows vertex:vert
+        #pragma surface surf Standard alpha vertex:vert
         #pragma target 3.0 // Use shader model 3.0 target, to get nicer looking lighting
+
 
         struct Input {
             float3 worldPos;
@@ -32,12 +98,6 @@ Shader "Custom/WaterWaves" {
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
-
-        float _WaveLength;
-        float _WaveHeight;
-        float _WaveSpeed;
-        float _RandomHeight;
-        float _RandomSpeed;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -58,25 +118,15 @@ Shader "Custom/WaterWaves" {
         void vert(inout appdata_full v, out Input o) {
             UNITY_INITIALIZE_OUTPUT(Input, o);
 
-            float4 v0 = mul(unity_ObjectToWorld, v.vertex);
-
-            // Calculate Gerstner wave movements 
-            float p = (v0.x + v0.z) / 16;
-            half k = 2 * UNITY_PI / _WaveLength;
-            float f = k * (p - _WaveSpeed * _Time.y);
-            v0.x += _WaveHeight * cos(f);
-            v0.y += _WaveHeight * sin(f);
-
+            float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
             v.vertex = mul(unity_WorldToObject, v0);
 
             o.worldPos = v0;
         }
 
-        void surf (Input i, inout SurfaceOutputStandard o) {
-            // Albedo comes from a texture tinted by color
+        void surf(Input i, inout SurfaceOutputStandard o) {
             fixed4 c = _Color;
-            o.Albedo = c.rgb;
-            // Metallic and smoothness come from slider variables
+            o.Albedo = c.rgb; // lerp(half3(1.0, 1.0, 1.0), c.rgb, c.a);
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
