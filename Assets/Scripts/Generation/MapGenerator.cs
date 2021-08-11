@@ -29,9 +29,11 @@ public class MapGenerator : MonoBehaviour {
     public float lacunarity;
 
     public float meshHeightMultiplier;
-    public AnimationCurve meshHeightCurve;
+    public AnimationCurve heightCurve;
     public bool displayWaterMesh;
     public bool displayTrees;
+
+    public List<GameObject> treePrefabs;
 
     public bool autoUpdate;
 
@@ -39,17 +41,14 @@ public class MapGenerator : MonoBehaviour {
 
     float[,] falloffMap;
 
-    System.Random seedRNG;
-
 	public MapData GenerateMapData(Vector2 center) {
-		float[,] noiseMap = Noise.GenerateNoiseMap(verticesPerSide, verticesPerSide, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset);
+        MapData mapData = new MapData(seed);
 
+		float[,] noiseMap = Noise.GenerateNoiseMap(verticesPerSide, verticesPerSide, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, useFalloff ? falloffMap : null, heightCurve, 1 / meshHeightMultiplier);
         Color[] colorMap = new Color[verticesPerSide * verticesPerSide];
+
         for (int z = 0; z < verticesPerSide; z++) {
             for (int x = 0; x < verticesPerSide; x++) {
-                if (useFalloff) {
-                    noiseMap[x, z] = Mathf.Clamp(noiseMap[x, z] - falloffMap[x, z], 0, 1);
-                }
 
                 float currentHeight = noiseMap[x, z];
                 for (int i = 0; i < regions.Length; i++) {
@@ -63,15 +62,25 @@ public class MapGenerator : MonoBehaviour {
             }
         }
 
-        return new MapData(noiseMap, colorMap);
+        mapData.SetHeightMap(noiseMap);
+        mapData.SetColorMap(colorMap);
+
+        if (displayTrees) {
+            float[,] treeMap = TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, 0.25f);
+            mapData.SetTreeMap(treeMap);
+        }
+
+        return mapData;
 	}
 
     public void DrawMap() {
         Vector2 center = Vector2.zero;
-        seedRNG = new System.Random(seed);
 
         MapData mapData = GenerateMapData(center);
         MapDisplay display = FindObjectOfType<MapDisplay>();
+
+        Dictionary<ThingType, List<GameObject>> thingPrefabs = new Dictionary<ThingType, List<GameObject>>();
+        thingPrefabs.Add(ThingType.Tree, treePrefabs);
 
         switch (drawMode) {
             case DrawMode.NoiseMap:
@@ -84,16 +93,16 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(verticesPerSide)));
                 break;
             case DrawMode.TreeMap:
-                display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f)));
+                display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, 0.25f)));
                 break;
             case DrawMode.Mesh:
-                MeshData landMesh = LandGenerator.GenerateLandMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, previewLOD);
+                MeshData landMesh = LandGenerator.GenerateLandMesh(mapData.heightMap, meshHeightMultiplier, previewLOD);
                 display.DrawLandMesh(landMesh, TextureGenerator.TextureFromColorMap(mapData.colorMap, verticesPerSide, verticesPerSide));
                 // display.DrawTrees(landMesh, displayTrees ? TreeGenerator.GenerateTreeMap(mapData.heightMap, seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, 0.25f) : null);
                 display.DrawWaterMesh(displayWaterMesh ? WaterGenerator.GenerateWaterMesh(verticesPerSide, verticesPerSide, previewLOD) : null);
                 break;
             case DrawMode.Chunks:
-                List<ChunkData> chunkDataList = ChunkGenerator.GenerateChunks(mapData.heightMap, mapData.colorMap, chunkSize, mapSize, verticesPerSide, meshScale, meshHeightMultiplier, meshHeightCurve);
+                List<ChunkData> chunkDataList = ChunkGenerator.GenerateChunks(mapData, chunkSize, mapSize, verticesPerSide, meshScale, meshHeightMultiplier, previewLOD, thingPrefabs);
                 display.DrawChunks(chunkDataList, /*chunkSize, */mapSize, meshHeightMultiplier, waterLevel);
                 break;
             default: break;
@@ -123,11 +132,32 @@ public struct TerrainType {
 }
 
 public struct MapData {
-    public readonly float[,] heightMap;
-    public readonly Color[] colorMap;
+    // https://stackoverflow.com/questions/48795701/how-to-change-readonly-variables-value/48795846
+    public int seed { get; }
+    public System.Random seedRNG { get; }
 
-    public MapData(float[,] heightMap, Color[] colorMap) {
+    public float[,] heightMap { get; private set; }
+    public Color[] colorMap { get; private set; }
+    public float[,] treeMap { get; private set; }
+
+    public MapData(int seed) {
+        this.seed = seed;
+        seedRNG = new System.Random(seed);
+
+        this.heightMap = null;
+        this.colorMap = null;
+        this.treeMap = null;
+    }
+
+    public void SetHeightMap(float[,] heightMap) {
         this.heightMap = heightMap;
+    }
+
+    public void SetColorMap(Color[] colorMap) {
         this.colorMap = colorMap;
+    }
+
+    public void SetTreeMap(float[,] treeMap) {
+        this.treeMap = treeMap;
     }
 }

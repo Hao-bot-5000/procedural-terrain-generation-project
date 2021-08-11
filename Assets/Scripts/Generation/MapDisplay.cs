@@ -44,11 +44,11 @@ public class MapDisplay : MonoBehaviour {
 
             BoxCollider chunkTrigger = chunkObject.GetComponent<BoxCollider>() ? chunkObject.GetComponent<BoxCollider>() : chunkObject.AddComponent<BoxCollider>();
 
-            float topLeftX = -(chunkData.size / 2f) * (mapSize - 1);
-            float topLeftZ =  (chunkData.size / 2f) * (mapSize - 1);
-            Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkData.size, 0, topLeftZ - ((i / mapSize)) * chunkData.size);
+            // float topLeftX = -(chunkData.size / 2f) * (mapSize - 1);
+            // float topLeftZ =  (chunkData.size / 2f) * (mapSize - 1);
+            // Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkData.size, 0, topLeftZ - ((i / mapSize)) * chunkData.size);
             
-            chunkObject.transform.position = position * chunkData.scale;
+            chunkObject.transform.position = chunkData.position * chunkData.scale;
             chunkObject.transform.parent = transform;
 
             float triggerPadding = 4f;
@@ -69,7 +69,7 @@ public class MapDisplay : MonoBehaviour {
             landMeshFilter.sharedMesh = chunkData.landMeshData.CreateMesh();
             landMeshCollider.sharedMesh = landMeshFilter.sharedMesh;
 
-            landObject.transform.position = position * chunkData.scale;
+            landObject.transform.position = chunkData.position * chunkData.scale;
             landObject.transform.parent = chunkObject.transform;
             landObject.transform.localScale = Vector3.one * chunkData.scale;
 
@@ -83,9 +83,16 @@ public class MapDisplay : MonoBehaviour {
             waterMeshRenderer.sharedMaterial = waterMaterial;
             waterMeshFilter.sharedMesh = chunkData.waterMeshData.CreateMesh(isDynamic: true);
 
-            waterObject.transform.position = (position + (Vector3.up * waterLevel)) * chunkData.scale;
+            waterObject.transform.position = (chunkData.position + (Vector3.up * waterLevel)) * chunkData.scale;
             waterObject.transform.parent = chunkObject.transform;
             waterObject.transform.localScale = Vector3.one * chunkData.scale;
+
+            if (landObject.transform.childCount == 0) {
+                foreach (ThingData thingData in chunkData.things) {
+                    GameObject thingObject = Instantiate(thingData.prefab, thingData.position * chunkData.scale, Quaternion.identity, landObject.transform);
+                    // thingObject.transform.localScale = Vector3.one * chunkData.scale;
+                }
+            }
         }
 
 
@@ -116,6 +123,6 @@ public class MapDisplay : MonoBehaviour {
         waterFilter.sharedMesh = null;
 
         textureRenderer.sharedMaterial.mainTexture = null;
-        textureRenderer.transform.localScale = Vector3.one;
+        textureRenderer.transform.localScale = Vector3.zero;
     }
 }

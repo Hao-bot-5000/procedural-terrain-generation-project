@@ -3,7 +3,7 @@ using UnityEngine;
 public static class Noise {
 
     // NOTE: discreteness currently splits the noise map into 1/n + 1 distinct values (i.e. discreteness of 1/4 ==> 5 unique map values)
-	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float discreteness=0) {
+	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float[,] falloffMap=null, AnimationCurve heightCurve=null, float discreteness=0) {
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1f;
@@ -56,15 +56,20 @@ public static class Noise {
         for (int z = 0; z < mapWidth; z++) {
             for (int x = 0; x < mapHeight; x++) {
                 float noise = Mathf.InverseLerp(minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap[x, z]);
-                
-                // Step variable creates a 'discrete' perlin noise map
-                // TODO: this doesn't work exactly as I want - i.e. discreteness of 1/2 should split map into 2 distinct values (currently 2 + 1 = 3)
-                if (discreteness > 0) noise = Mathf.Round(noise / discreteness) * discreteness;
+
+                if (falloffMap != null) noise = Mathf.Clamp(noise - falloffMap[x, z], 0, 1);
+                if (heightCurve != null) noise = heightCurve.Evaluate(noise);
+                // Discrete variable creates a 'discrete' perlin noise map -- higher discreteness results in fewer variation in noise values [0, 1];
+                if (discreteness > 0) noise = Mathf.Floor(noise / discreteness) * discreteness;
                 
                 noiseMap[x, z] = noise;
             }
         }
 
         return noiseMap;
+    }
+
+    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float discreteness=0) {
+        return GenerateNoiseMap(mapWidth, mapHeight, seedRNG, scale, octaves, persistance, lacunarity, offset, null, null, discreteness);
     }
 }

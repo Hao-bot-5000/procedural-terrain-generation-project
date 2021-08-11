@@ -3,9 +3,7 @@ using System;
 using System.Collections.Generic;
 
 public static class LandGenerator {
-    public static MeshData GenerateLandMesh(float[,] heightMap, float heightMultiplier, AnimationCurve inputHeightCurve, int levelOfDetail) {
-        AnimationCurve heightCurve = new AnimationCurve(inputHeightCurve.keys);
-        
+    public static MeshData GenerateLandMesh(float[,] heightMap, float heightMultiplier, int levelOfDetail) {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
         float topLeftX = (width - 1) / -2f;
@@ -19,7 +17,7 @@ public static class LandGenerator {
         for (int z = 0; z < height; z += meshSimplificationIncrement) {
             for (int x = 0; x < width; x += meshSimplificationIncrement) {
                 // Flooring vertexHeight to generate cube-like generation 
-                float vertexHeight = Mathf.Round(heightCurve.Evaluate(heightMap[x, z]) * (heightMultiplier));
+                float vertexHeight = heightMap[x, z] * heightMultiplier; // Mathf.Round(heightCurve.Evaluate(heightMap[x, z]) * (heightMultiplier));
                 meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, vertexHeight, topLeftZ - z);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float) width, z / (float) height);
 
