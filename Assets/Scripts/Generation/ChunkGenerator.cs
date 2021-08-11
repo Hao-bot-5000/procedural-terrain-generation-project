@@ -33,9 +33,8 @@ public static class ChunkGenerator {
                     chunkColorMap[z * chunkVertices + x] = colorMap[(z + offsetZ) * verticesPerSide + (x + offsetX)];
                 
                     // Do not spawn trees on chunk edges
-                    if ((z != 0 || z != chunkVertices - 1) && (x != 0 || x != chunkVertices - 1)) {
+                    if ((z > 0 && z < chunkVertices) && (x > 0 && x < chunkVertices)) {
                         if (seedRNG.NextDouble() < treeMap[x + offsetX, z + offsetZ]) {
-                            // TODO: Figure out how to place trees in correct vertex position
                             Vector3 treePosition = new Vector3(
                                 chunkPosition.x - (chunkSize * 0.5f) + x, 
                                 chunkHeightMap[x, z] * heightMultiplier, 
