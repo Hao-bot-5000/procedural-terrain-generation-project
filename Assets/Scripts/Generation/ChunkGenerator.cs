@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class ChunkGenerator {
+    static float treeSparseness = 0.25f;
+
     public static List<ChunkData> GenerateChunks(MapData mapData, int chunkSize, int mapSize, int verticesPerSide, float scale, float heightMultiplier, int lod, Dictionary<ThingType, List<GameObject>> thingPrefabs) {
         System.Random seedRNG = mapData.seedRNG;
         float[,] heightMap = mapData.heightMap;
@@ -33,8 +35,8 @@ public static class ChunkGenerator {
                     chunkColorMap[z * chunkVertices + x] = colorMap[(z + offsetZ) * verticesPerSide + (x + offsetX)];
                 
                     // Do not spawn trees on chunk edges
-                    if ((z > 0 && z < chunkVertices) && (x > 0 && x < chunkVertices)) {
-                        if (seedRNG.NextDouble() < treeMap[x + offsetX, z + offsetZ]) {
+                    if ((z > 0 && z < chunkVertices - 1) && (x > 0 && x < chunkVertices - 1)) {
+                        if (seedRNG.NextDouble() < treeMap[x + offsetX, z + offsetZ] * treeSparseness) {
                             Vector3 treePosition = new Vector3(
                                 chunkPosition.x - (chunkSize * 0.5f) + x, 
                                 chunkHeightMap[x, z] * heightMultiplier, 
