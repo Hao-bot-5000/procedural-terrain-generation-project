@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 
 public class MapGenerator : MonoBehaviour {
+    // NOTE: having many chunks with their own unique materials causes SetPass calls to skyrocket
     public const int chunkSize = 24;
-    public const int mapSize = 30; // 30 x 30 chunks
+    public const int mapSize = 30; // n x n chunks
     const int verticesPerSide = chunkSize * mapSize + 1;
 
     public const float waterLevel = 11.5f;

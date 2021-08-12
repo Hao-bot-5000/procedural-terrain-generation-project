@@ -279,7 +279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &568715404
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -446,7 +446,7 @@ MonoBehaviour:
   displayWaterMesh: 1
   displayTrees: 1
   treePrefabs:
-  - {fileID: 5059181057287284700, guid: 6ce04bc739744ff449dd724883158bdc, type: 3}
+  - {fileID: 919132149155446097, guid: fa77127917d2d5f409f780b5a3f23cad, type: 3}
   autoUpdate: 0
   regions:
   - name: ocean
@@ -668,7 +668,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1380852449
 Transform:
   m_ObjectHideFlags: 0
@@ -750,7 +750,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1498508930
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ public static class ChunkGenerator {
         float topLeftX = -(chunkSize * 0.5f) * (mapSize - 1);
         float topLeftZ =  (chunkSize * 0.5f) * (mapSize - 1);
 
-        float treeSparseness = 0.25f;
+        float treeSparseness = 0.125f;
 
         List<ChunkData> chunkList = new List<ChunkData>();
 
@@ -42,7 +42,8 @@ public static class ChunkGenerator {
                                 chunkHeightMap[x, z] * heightMultiplier, 
                                 chunkPosition.z + (chunkSize * 0.5f) - z
                             );
-                            TreeGenerator.AddTreeData(ref chunkThings, treePosition, treePrefabs[seedRNG.Next(0, treePrefabs.Count)]);
+                            Quaternion treeRotation = Quaternion.Euler(0, seedRNG.Next(360), 0);
+                            TreeGenerator.AddTreeData(ref chunkThings, treePosition, treeRotation, treePrefabs[seedRNG.Next(0, treePrefabs.Count)]);
                         }
                     }
                 }

@@ -86,7 +86,7 @@ public class MapDisplay : MonoBehaviour {
 
             if (landObject.transform.childCount == 0) {
                 foreach (ThingData thingData in chunkData.things) {
-                    GameObject thingObject = Instantiate(thingData.prefab, thingData.position * chunkData.scale, Quaternion.identity, landObject.transform);
+                    GameObject thingObject = Instantiate(thingData.prefab, thingData.position * chunkData.scale, thingData.rotation, landObject.transform);
                 }
             }
         }

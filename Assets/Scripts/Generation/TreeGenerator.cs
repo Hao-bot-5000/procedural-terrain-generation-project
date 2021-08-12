@@ -21,7 +21,7 @@ public static class TreeGenerator {
         return treeDensityMap;
     }
 
-    public static void AddTreeData(ref List<ThingData> thingList, Vector3 treePosition, GameObject prefab) {
-        thingList.Add(new ThingData(ThingType.Tree, prefab, treePosition));
+    public static void AddTreeData(ref List<ThingData> thingList, Vector3 position, Quaternion rotation, GameObject prefab) {
+        thingList.Add(new ThingData(ThingType.Tree, prefab, position, rotation));
     }
 }
