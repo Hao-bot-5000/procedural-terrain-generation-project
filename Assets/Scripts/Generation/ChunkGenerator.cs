@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class ChunkGenerator {
-    static float treeSparseness = 0.25f;
-
     public static List<ChunkData> GenerateChunks(MapData mapData, int chunkSize, int mapSize, int verticesPerSide, float scale, float heightMultiplier, int lod, Dictionary<ThingType, List<GameObject>> thingPrefabs) {
         System.Random seedRNG = mapData.seedRNG;
         float[,] heightMap = mapData.heightMap;
@@ -17,6 +15,8 @@ public static class ChunkGenerator {
         int chunkVertices = chunkSize + 1;
         float topLeftX = -(chunkSize * 0.5f) * (mapSize - 1);
         float topLeftZ =  (chunkSize * 0.5f) * (mapSize - 1);
+
+        float treeSparseness = 0.25f;
 
         List<ChunkData> chunkList = new List<ChunkData>();
 

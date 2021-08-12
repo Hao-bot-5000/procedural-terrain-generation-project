@@ -36,19 +36,6 @@ public class MeshData {
         uvs = flatShadedUVs;
     }
 
-    // public void MakeDoubleSided() {
-    //     List<int> doubleSidedTriangles = new List<int>(triangles);
-
-    //     int[] reversedTriangles = new int[triangles.Length];
-    //     for (int i = 0; i < triangles.Length; i++) {
-    //         reversedTriangles[i] = triangles[triangles.Length - 1 - i];
-    //     }
-
-    //     doubleSidedTriangles.AddRange(reversedTriangles);
-
-    //     triangles = doubleSidedTriangles.ToArray();
-    // }
-
     public Mesh CreateMesh(bool isDynamic=false) {
         Mesh mesh = new Mesh();
 

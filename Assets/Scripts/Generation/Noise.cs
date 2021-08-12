@@ -1,8 +1,6 @@
 using UnityEngine;
 
 public static class Noise {
-
-    // NOTE: discreteness currently splits the noise map into 1/n + 1 distinct values (i.e. discreteness of 1/4 ==> 5 unique map values)
 	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, System.Random seedRNG, float scale, int octaves, float persistance, float lacunarity, Vector2 offset, float[,] falloffMap=null, AnimationCurve heightCurve=null, float discreteness=0) {
         Vector2[] octaveOffsets = new Vector2[octaves];
 

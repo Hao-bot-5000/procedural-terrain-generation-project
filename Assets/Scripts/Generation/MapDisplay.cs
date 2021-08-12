@@ -34,6 +34,8 @@ public class MapDisplay : MonoBehaviour {
             if (child.name.StartsWith("chunk")) children.Add(child.name, child.gameObject);
         }
 
+        float triggerPadding = 4f;
+
         for (int i = 0; i < chunkDataList.Count; i++) {
             bool chunkExists = children.ContainsKey("chunk (" + i + ")");
             ChunkData chunkData = chunkDataList[i];
@@ -43,15 +45,10 @@ public class MapDisplay : MonoBehaviour {
             chunkObject.layer = chunkLayer;
 
             BoxCollider chunkTrigger = chunkObject.GetComponent<BoxCollider>() ? chunkObject.GetComponent<BoxCollider>() : chunkObject.AddComponent<BoxCollider>();
-
-            // float topLeftX = -(chunkData.size / 2f) * (mapSize - 1);
-            // float topLeftZ =  (chunkData.size / 2f) * (mapSize - 1);
-            // Vector3 position = new Vector3(topLeftX + (i % mapSize) * chunkData.size, 0, topLeftZ - ((i / mapSize)) * chunkData.size);
             
             chunkObject.transform.position = chunkData.position * chunkData.scale;
             chunkObject.transform.parent = transform;
 
-            float triggerPadding = 4f;
             chunkTrigger.center = Vector3.up * (mapHeightMultiplier + triggerPadding) * 0.5f * chunkData.scale;
             chunkTrigger.size = new Vector3(chunkData.size, mapHeightMultiplier + triggerPadding, chunkData.size) * chunkData.scale;
             chunkTrigger.isTrigger = true;
@@ -90,12 +87,9 @@ public class MapDisplay : MonoBehaviour {
             if (landObject.transform.childCount == 0) {
                 foreach (ThingData thingData in chunkData.things) {
                     GameObject thingObject = Instantiate(thingData.prefab, thingData.position * chunkData.scale, Quaternion.identity, landObject.transform);
-                    // thingObject.transform.localScale = Vector3.one * chunkData.scale;
                 }
             }
         }
-
-
     }
 
     public void DrawLandMesh(MeshData meshData, Texture2D texture) {
