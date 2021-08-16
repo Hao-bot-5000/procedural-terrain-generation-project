@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 public class MapGenerator : MonoBehaviour {
-    // NOTE: having many chunks with their own unique materials causes SetPass calls to skyrocket
+    // NOTE: having MANY chunks with their own unique materials causes SetPass calls to skyrocket, but having FEWER chunks decreases effectiveness of frustum culling
     public const int chunkSize = 24;
     public const int mapSize = 30; // n x n chunks
     const int verticesPerSide = chunkSize * mapSize + 1;
@@ -24,10 +24,14 @@ public class MapGenerator : MonoBehaviour {
 
     public bool useFalloff;
 
+    [Range (1, 4)]
     public int octaves;
     [Range (0, 1)]
     public float persistance;
+    [Range (1, 4)]
     public float lacunarity;
+    [Range (0, 1)]
+    public float roughness;
 
     public float meshHeightMultiplier;
     public AnimationCurve heightCurve;
@@ -45,7 +49,7 @@ public class MapGenerator : MonoBehaviour {
 	public MapData GenerateMapData(Vector2 center) {
         MapData mapData = new MapData(seed);
 
-		float[,] noiseMap = Noise.GenerateNoiseMap(verticesPerSide, verticesPerSide, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, useFalloff ? falloffMap : null, heightCurve, 1 / meshHeightMultiplier);
+		float[,] noiseMap = Noise.GenerateNoiseMap(verticesPerSide, verticesPerSide, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, useFalloff ? falloffMap : null, heightCurve, roughness / meshHeightMultiplier);
         Color[] colorMap = new Color[verticesPerSide * verticesPerSide];
 
         for (int z = 0; z < verticesPerSide; z++) {
