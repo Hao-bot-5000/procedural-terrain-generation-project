@@ -46,6 +46,8 @@ public class MapGenerator : MonoBehaviour {
 
     float[,] falloffMap;
 
+    [HideInInspector] private float treeMapNoiseMultiplier = 2f;
+    [HideInInspector] private float treeMapDiscreteness = 0.3f;
 	public MapData GenerateMapData(Vector2 center) {
         MapData mapData = new MapData(seed);
 
@@ -71,7 +73,7 @@ public class MapGenerator : MonoBehaviour {
         mapData.SetColorMap(colorMap);
 
         if (displayTrees) {
-            float[,] treeMap = TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, 0.25f);
+            float[,] treeMap = TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale * treeMapNoiseMultiplier, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, treeMapDiscreteness);
             mapData.SetTreeMap(treeMap);
         }
 
@@ -98,7 +100,7 @@ public class MapGenerator : MonoBehaviour {
                 display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(verticesPerSide)));
                 break;
             case DrawMode.TreeMap:
-                display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, 0.25f)));
+                display.DrawTexture(TextureGenerator.TextureFromHeightMap(TreeGenerator.GenerateTreeMap(mapData.heightMap, mapData.seedRNG, noiseScale * treeMapNoiseMultiplier, octaves, persistance, lacunarity, center + offset, waterLevel / meshHeightMultiplier, treeMapDiscreteness)));
                 break;
             case DrawMode.Mesh:
                 MeshData landMesh = LandGenerator.GenerateLandMesh(mapData.heightMap, meshHeightMultiplier, previewLOD);
