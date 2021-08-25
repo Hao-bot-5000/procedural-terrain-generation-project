@@ -46,8 +46,8 @@ public class MapGenerator : MonoBehaviour {
 
     float[,] falloffMap;
 
-    [HideInInspector] private float treeMapNoiseMultiplier = 2f;
-    [HideInInspector] private float treeMapDiscreteness = 0.3f;
+    [HideInInspector] private const float treeMapNoiseMultiplier = 2f;
+    [HideInInspector] private const float treeMapDiscreteness = 0.75f;
 	public MapData GenerateMapData(Vector2 center) {
         MapData mapData = new MapData(seed);
 

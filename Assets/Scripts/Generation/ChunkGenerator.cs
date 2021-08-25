@@ -37,11 +37,14 @@ public static class ChunkGenerator {
                     // Do not spawn trees on chunk edges
                     if ((z > 0 && z < chunkVertices - 1) && (x > 0 && x < chunkVertices - 1)) {
                         if (seedRNG.NextDouble() < treeMap[x + offsetX, z + offsetZ] * treeSparseness) {
+                            // Randomized position offset
+                            float localOffsetX = MyUtils.NextFloat(seedRNG, -0.375f, 0.375f);
+                            float localOffsetZ = MyUtils.NextFloat(seedRNG, -0.375f, 0.375f);
+
                             Vector3 treePosition = new Vector3(
-                                chunkPosition.x - (chunkSize * 0.5f) + x, 
-                                chunkHeightMap[x, z] * heightMultiplier, 
-                                chunkPosition.z + (chunkSize * 0.5f) - z
-                            );
+                                chunkPosition.x - (chunkSize * 0.5f) + (x + localOffsetX), 
+                                CalculateY(x, z, localOffsetX, localOffsetZ, heightMap, offsetX, offsetZ) * heightMultiplier, 
+                                chunkPosition.z + (chunkSize * 0.5f) - (z + localOffsetZ));
                             Quaternion treeRotation = Quaternion.Euler(0, seedRNG.Next(360), 0);
                             TreeGenerator.AddTreeData(ref chunkThings, treePosition, treeRotation, treePrefabs[seedRNG.Next(0, treePrefabs.Count)]);
                         }
@@ -56,6 +59,71 @@ public static class ChunkGenerator {
         }
     
         return chunkList;
+    }
+
+    // NOTE: chunkHeightMap is not used here because the interpolation may require a coordinate value that has not been set yet -- instead use heightMap to get those values
+    private static float CalculateY(int baseX, int baseZ, float offsetX, float offsetZ, float[,] heightMap, int heightMapOffsetX, int heightMapOffsetZ) {
+        float x = baseX + offsetX;
+        float z = baseZ + offsetZ;
+
+        int minX = Mathf.FloorToInt(x);
+        int maxX = Mathf.CeilToInt(x);
+        int minZ = Mathf.FloorToInt(z);
+        int maxZ = Mathf.CeilToInt(z);
+
+        float scaleX = x - minX;
+        float scaleZ = z - minZ;
+
+
+        // Check if both offsets have the same sign
+        bool isPosX = offsetX >= 0;
+        bool isPosZ = offsetZ >= 0;
+            
+        // int x0 = minX;
+        // int z0 = maxZ;
+
+        // int x1;
+        // int z1;
+        // bool hypotenuseAbove;
+        // if (isPosX == isPosZ) {
+        //     hypotenuseAbove = isPosX;
+        //     x1 = hypotenuseAbove ? minX : maxX;
+        //     z1 = hypotenuseAbove ? minZ : maxZ;
+        // }
+        // else {
+        //     hypotenuseAbove = scaleZ < scaleX;
+        //     x1 = hypotenuseAbove ? minX : maxX;
+        //     z1 = hypotenuseAbove ? minZ : maxZ;
+        // }
+
+        // int x2 = maxX;
+        // int z2 = minZ;
+
+        int x0 = minX;
+        int z0 = minZ;
+
+        int x1;
+        int z1;
+        bool hypotenuseAbove;
+        if (isPosX != isPosZ) {
+            hypotenuseAbove = !isPosX;
+            x1 = hypotenuseAbove ? maxX : minX;
+            z1 = hypotenuseAbove ? minZ : maxZ;
+        }
+        else {
+            hypotenuseAbove = scaleZ < scaleX;
+            x1 = hypotenuseAbove ? maxX : minX;
+            z1 = hypotenuseAbove ? minZ : maxZ;
+        }
+
+        int x2 = maxX;
+        int z2 = maxZ;
+
+        return Mathf.Lerp(
+            Mathf.Lerp(heightMap[x0 + heightMapOffsetX, z0 + heightMapOffsetZ], heightMap[x1 + heightMapOffsetX, z1 + heightMapOffsetZ], hypotenuseAbove ? scaleX : scaleZ),
+            heightMap[x2 + heightMapOffsetX, z2 + heightMapOffsetZ],
+            hypotenuseAbove ? scaleZ : scaleX
+        );
     }
 }
 

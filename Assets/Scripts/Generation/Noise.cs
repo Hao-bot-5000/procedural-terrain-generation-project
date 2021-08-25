@@ -58,7 +58,7 @@ public static class Noise {
                 if (falloffMap != null) noise = Mathf.Clamp(noise - falloffMap[x, z], 0, 1);
                 if (heightCurve != null) noise = heightCurve.Evaluate(noise);
                 // Discrete variable creates a 'discrete' perlin noise map -- higher discreteness results in fewer variation in noise values [0, 1];
-                if (discreteness > 0) noise = Mathf.Floor(noise / discreteness) * discreteness;
+                if (discreteness > 0) noise = Mathf.Round(noise / discreteness) * discreteness;
                 
                 noiseMap[x, z] = noise;
             }
