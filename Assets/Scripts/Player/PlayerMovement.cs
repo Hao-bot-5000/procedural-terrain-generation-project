@@ -131,7 +131,7 @@ public class PlayerMovement : MonoBehaviour {
             latestSurfaceContactPoint = newSurfaceContactPoint;
 
             newSurfaceContactPoint.y += playerController.skinWidth;
-            Vector3 newSurfaceNormal = CalculateNormalBelow(newSurfaceContactPoint);
+            Vector3 newSurfaceNormal = CalculateNormalBelow(newSurfaceContactPoint, playerController.height);
             float newNormalAngle = Vector3.Angle(Vector3.up, newSurfaceNormal);
 
             if (latestSurfaceNormal != newSurfaceNormal) {
@@ -151,11 +151,10 @@ public class PlayerMovement : MonoBehaviour {
         Debug.DrawRay(transform.position, slideDirection * 3, Color.green);
     }
 
-    private Vector3 CalculateNormalBelow(Vector3 position) {
+    private Vector3 CalculateNormalBelow(Vector3 position, float rayLength) {
         RaycastHit hit;
 
         Ray ray = new Ray(position, Vector3.down);
-        float rayLength = playerController.height;
         Debug.DrawRay(position, Vector3.down * rayLength, Color.red);
 
         bool foundSurface = Physics.Raycast(ray, out hit, rayLength);
