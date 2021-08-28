@@ -85,7 +85,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AtmosphereThickness: 1.5
+    - _AtmosphereThickness: 1.25
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -108,7 +108,7 @@ Material:
     - _SrcBlend: 1
     - _SunDisk: 2
     - _SunSize: 0.0625
-    - _SunSizeConvergence: 4
+    - _SunSizeConvergence: 8
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
