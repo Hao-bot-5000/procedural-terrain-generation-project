@@ -24,8 +24,8 @@ public class DayNightCycle : MonoBehaviour {
     private float _intensity;
 
     [Header("Sun")]
-    [SerializeField] private Transform _sunTransform;
-    private Light _sunLight;
+    // [SerializeField] private Transform _sunTransform;
+    [SerializeField] private Light _sunLight;
     [SerializeField] private Gradient _sunColor;
     [SerializeField] private float _sunBaseIntensity = 0.5f;
     [SerializeField] private float _sunIntensityVariation = 0.5f;
@@ -33,6 +33,7 @@ public class DayNightCycle : MonoBehaviour {
     // private float _sunProjectionValue;
 
     [Header("Ambience")]
+    [SerializeField] private Color _ambientBaseColor = new Color(0.355f, 0.385f, 0.435f);
     [SerializeField] private float _ambientBaseIntensity = 0.25f;
     [SerializeField] private float _ambientIntensityVariation = 0.75f;
     // private float _ambientIntensity;
@@ -40,15 +41,15 @@ public class DayNightCycle : MonoBehaviour {
     [Space(10)]
     [SerializeField] private List<DayNightModule> modules = new List<DayNightModule>();
 
-    private float updateEverySecond = 0f;
+    private float updateEverySecond = 1f;
 
-    void Start() {
-        _sunLight = _sunTransform.GetComponent<Light>();
+    // void Start() {
+    //     _sunLight = _sunTransform.GetComponent<Light>();
 
-        // NOTE: Starting position of sunlight seems to affect the land meshes' ambient lighting (sunlight with -90d rotation causes land meshes 
-        //       to be pitch black at night time, sunlight with 90d rotation causes land meshes to have dim ambient lighting at night time) 
-        _sunTransform.localEulerAngles = Vector3.left * 90f;
-    }
+    //     // NOTE: Starting position of sunlight seems to affect the land meshes' ambient lighting (sunlight with -90d rotation causes land meshes 
+    //     //       to be pitch black at night time, sunlight with 90d rotation causes land meshes to have dim ambient lighting at night time) 
+    //     // _sunTransform.localEulerAngles = Vector3.left * 90f;
+    // }
 
     void Update() {
         if (!isPaused) {
@@ -88,7 +89,7 @@ public class DayNightCycle : MonoBehaviour {
     }
 
     private void AdjustSkyRotation() {
-        float sunAngle = timeOfDay * 360f;
+        float sunAngle = timeOfDay * 360f - 90f; // Subtract by 90 to compensate for sun/moon local rotation
         _skyTransform.localEulerAngles = Vector3.forward * sunAngle;
     }
 
@@ -111,7 +112,7 @@ public class DayNightCycle : MonoBehaviour {
 
     private void AdjustAmbientLight() {
         // _ambientIntensity = Mathf.Clamp01(_sunProjectionValue);
-        RenderSettings.ambientIntensity = _intensity * _ambientIntensityVariation + _ambientBaseIntensity;
+        RenderSettings.ambientLight = _ambientBaseColor * (_intensity * _ambientIntensityVariation + _ambientBaseIntensity);
     }
 
     public void AddModule(DayNightModule module) {

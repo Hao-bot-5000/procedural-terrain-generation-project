@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerMovement : MonoBehaviour {
     public float movementSpeed = 16f;
@@ -9,8 +10,11 @@ public class PlayerMovement : MonoBehaviour {
 
     public float jumpCooldown = 1f;
 
-    public Transform perspective;
+    public Transform playerCamera;
     public float sensitivity = 2f;
+
+    [Tooltip("Objects with positions which must be relative to the player")]
+    public List<Transform> relativeObjects;
 
     CharacterController playerController;
     Vector3 velocity;
@@ -42,6 +46,7 @@ public class PlayerMovement : MonoBehaviour {
 
         MovePlayer();
         RotatePlayer();
+        MoveRelativeObjects();
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit) {
@@ -78,7 +83,7 @@ public class PlayerMovement : MonoBehaviour {
         pitch = Mathf.Clamp(pitch + Input.GetAxis("Mouse Y") * sensitivity, -45f, 90f);
 
         transform.localEulerAngles = new Vector3(0f, yaw, 0f);
-        perspective.localEulerAngles = new Vector3(-pitch, 0f, 0f);
+        playerCamera.localEulerAngles = new Vector3(-pitch, 0f, 0f);
     }
 
     [HideInInspector] private Vector3 directionalVelocity;
@@ -99,6 +104,13 @@ public class PlayerMovement : MonoBehaviour {
         else {
             velocity.x = directionalInput.x * movementSpeed;
             velocity.z = directionalInput.z * movementSpeed;
+        }
+    }
+
+    // Move objects whose positions must be relative to the player (i.e. stars & moon)
+    private void MoveRelativeObjects() {
+        foreach (Transform obj in relativeObjects) {
+            obj.position = transform.position;
         }
     }
 
