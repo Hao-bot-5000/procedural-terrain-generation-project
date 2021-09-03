@@ -8,7 +8,7 @@ public class DayNightCycle : MonoBehaviour {
     [Header("Data")]
     [SerializeField] [Range(0, 1)] private float _timeOfDay;
     public float timeOfDay { get { return _timeOfDay; } }
-    [SerializeField] private int _dayLength = 30; // In seconds
+    [SerializeField] [Min(1)] private int _dayLength = 30; // In seconds
     public int dayLength { get { return _dayLength; } }
     [SerializeField] private int _yearLength = 3; // In days
     public int yearLength { get { return _yearLength; } }
@@ -27,6 +27,9 @@ public class DayNightCycle : MonoBehaviour {
     // [SerializeField] private Transform _sunTransform;
     [SerializeField] private Light _sunLight;
     [SerializeField] private Gradient _sunColor;
+    [SerializeField] private Renderer _sunRenderer;
+    private Color _sunMaterialColor;
+    [SerializeField] private Gradient _sunRendererColor;
     [SerializeField] private float _sunBaseIntensity = 0.5f;
     [SerializeField] private float _sunIntensityVariation = 0.5f;
     // private float _sunIntensity;
@@ -108,6 +111,9 @@ public class DayNightCycle : MonoBehaviour {
     
         // Adjust light color
         _sunLight.color = _sunColor.Evaluate(_intensity);
+
+        // Adjust material color
+        _sunRenderer.material.color = _sunRendererColor.Evaluate(_intensity);
     }
 
     private void AdjustAmbientLight() {
