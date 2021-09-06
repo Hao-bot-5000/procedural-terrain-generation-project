@@ -1,5 +1,6 @@
-Shader "Custom/WaterWaves" {
+Shader "Custom/Water Waves" {
     Properties {
+        _NoiseTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
@@ -18,13 +19,21 @@ Shader "Custom/WaterWaves" {
         float _WaveHeight;
         float _WaveSpeed;
 
+        sampler2D _NoiseTex;
+
+        // TODO: currently using hardcoded values (/ 512, * 4) to calculate noise values, find how these values relate
+        //       to the shader's current properties      
+        float apply_noise(float4 v0) {
+            return (tex2Dlod(_NoiseTex, float4(v0.xz + _Time.xz, 0, 0) / 512) * 2 - 1) * 4;
+        }
+
         float4 displace_vert(float4 v0) {
             // Calculate Gerstner wave movements 
             float p = (v0.x + v0.z) / 16;
             half k = 2 * UNITY_PI / _WaveLength;
             float f = k * (p - _WaveSpeed * _Time.y);
             v0.x += _WaveHeight * cos(f);
-            v0.y += _WaveHeight * sin(f);
+            v0.y += _WaveHeight * sin(f) + apply_noise(v0);
 
             return v0;
         }
@@ -65,6 +74,7 @@ Shader "Custom/WaterWaves" {
     
             v2f vert(appdata_full v) {
                 float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
+                // v0.y += apply_noise(v.texcoord.xy);
                 v.vertex = mul(unity_WorldToObject, v0);
 
                 v2f o;
@@ -95,9 +105,9 @@ Shader "Custom/WaterWaves" {
             INTERNAL_DATA
         };
 
+        fixed4 _Color;
         half _Glossiness;
         half _Metallic;
-        fixed4 _Color;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -106,19 +116,11 @@ Shader "Custom/WaterWaves" {
             // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
 
-        // https://www.shadertoy.com/view/4djSRW
-        // float hash13(float3 p3)
-        // {
-        //     p3  = frac(p3 * .1031);
-        //     p3 += dot(p3, p3.zyx + 31.32);
-        //     return frac((p3.x + p3.y) * p3.z) * 2 - 1;
-        // }
-
-
         void vert(inout appdata_full v, out Input o) {
             UNITY_INITIALIZE_OUTPUT(Input, o);
 
             float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
+            // v0.y += apply_noise(v.texcoord.xy);
             v.vertex = mul(unity_WorldToObject, v0);
 
             o.worldPos = v0;

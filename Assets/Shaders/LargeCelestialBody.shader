@@ -1,5 +1,5 @@
 // Based on unity Unlit/Transparent shader
-Shader "Custom/Unlit/Transparent Color Texture" {
+Shader "Custom/Large Celestial Body" {
     Properties {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Color ("Base Color", Color) = (1,1,1,1)
@@ -24,12 +24,14 @@ Shader "Custom/Unlit/Transparent Color Texture" {
             struct appdata_t {
                 float4 vertex : POSITION;
                 float2 texcoord : TEXCOORD0;
+                float4 color: COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float2 texcoord : TEXCOORD0;
+                float4 color: COLOR;
                 UNITY_FOG_COORDS(1)
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -44,13 +46,16 @@ Shader "Custom/Unlit/Transparent Color Texture" {
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.color = v.color;
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target {
                 fixed4 col = tex2D(_MainTex, i.texcoord) * _Color;
-                UNITY_APPLY_FOG(i.fogCoord, col);
+                // NOTE: Effectively weakens fog density by scaling the current fog color towards the material's color
+                //       I don't know how to directly lower fog density so this is the best I can do :)
+                UNITY_APPLY_FOG_COLOR(i.fogCoord, col, (unity_FogColor * 0.25) + (i.color * 0.75));
                 return col;
             }
             

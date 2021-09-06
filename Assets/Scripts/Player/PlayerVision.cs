@@ -2,60 +2,65 @@ using UnityEngine;
 
 public class PlayerVision : MonoBehaviour {
     public Transform playerCamera;
+    public DayNightCycle dayNightCycle;
     public int chunkLayer;
     public int backgroundLayer;
 
-    // TODO: underwater fog color needs to scale with time of day
-    public Color underwaterFogColor = new Color(0.15f, 0.55f, 0.75f, 0.6f);
-    public float underwaterFogDensity = 0.01f;
+    public Color underwaterFogColor;
+    public float underwaterFogDensity;
 
-    Transform currentWaterTransform;
-    // TerrainMovement currentWaterMovement;
-
-    enum VisionMode { Default, Underwater }; // Might be useful if we ever add other vision effects?
-    VisionMode visionMode = VisionMode.Default;
-
-    // http://wiki.unity3d.com/index.php?title=Underwater_Script
+    Material defaultSkybox;
     bool defaultFog;
     Color defaultFogColor;
     float defaultFogDensity;
-    // Material defaultSkybox;
-    // Material noSkybox;
+
+    Transform currentWaterTransform;
+
+    enum VisionMode { Default, Underwater }; // Might be useful if we ever add other vision effects?
+    VisionMode visionMode = VisionMode.Default;
 
     float waveLength;
     float waveSpeed;
     float waveHeight;
 
+    Texture2D noiseTexture;
+
+    Vector4 shaderTime;
+
     void Start() {
+        defaultSkybox = RenderSettings.skybox;
         defaultFog = RenderSettings.fog;
         defaultFogColor = RenderSettings.fogColor;
         defaultFogDensity = RenderSettings.fogDensity;
-        // defaultSkybox = RenderSettings.skybox;
 
         UpdateCullDistances();
     }
 
     void Update() {
-        // Only runs if player is below water level and vision mode has not been switched to type Underwater yet
-        float currentWaterLevel = GetWaveHeightAtPosition(playerCamera.position);
-        // Debug.Log(playerCamera.position + " | " + currentWaterLevel);
-        if (playerCamera.position.y < currentWaterLevel && visionMode == VisionMode.Default) {
-            RenderSettings.fog = true;
-            RenderSettings.fogColor = underwaterFogColor;
-            RenderSettings.fogDensity = underwaterFogDensity;
+        shaderTime = Shader.GetGlobalVector("_Time");
+        bool isAboveWater = playerCamera.position.y > GetWaveHeightAtPosition(playerCamera.position);
 
-            visionMode = VisionMode.Underwater;
-        }
-        // Only runs if player is above water level and the vision mode has not been switched to type Default yet
-        else if (playerCamera.position.y >= currentWaterLevel && visionMode == VisionMode.Underwater) {
+        if (isAboveWater && visionMode == VisionMode.Underwater) {
+            // RenderSettings.skybox = defaultSkybox;
             RenderSettings.fog = defaultFog;
             RenderSettings.fogColor = defaultFogColor;
             RenderSettings.fogDensity = defaultFogDensity;
-
+            
             visionMode = VisionMode.Default;
+        }
+        else if (!isAboveWater) {
+            if (visionMode == VisionMode.Default) {
+                // RenderSettings.skybox = null;
+                RenderSettings.fog = true;
+                RenderSettings.fogDensity = underwaterFogDensity;
+
+                visionMode = VisionMode.Underwater;
+            }
+            RenderSettings.fogColor = underwaterFogColor * (dayNightCycle.intensity * 0.8f + 0.2f);
         }
     }
 
+    // NOTE: I just realized this is kind of useless since every water mesh shares the same material...
     void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == chunkLayer) {
             currentWaterTransform = other.transform.childCount > 1 ? other.transform.GetChild(1) : null; // NOTE: Assumes that water object is the 2nd child of chunk object
@@ -64,6 +69,8 @@ public class PlayerVision : MonoBehaviour {
                 waveLength = currentWaterMeshRenderer.sharedMaterial.GetFloat("_WaveLength");
                 waveSpeed = currentWaterMeshRenderer.sharedMaterial.GetFloat("_WaveSpeed");
                 waveHeight = currentWaterMeshRenderer.sharedMaterial.GetFloat("_WaveHeight");
+
+                noiseTexture = currentWaterMeshRenderer.sharedMaterial.GetTexture("_NoiseTex") as Texture2D;
             }
         }
     }
@@ -86,11 +93,20 @@ public class PlayerVision : MonoBehaviour {
     }
 
     private float GetWaveHeightAtPosition(Vector3 position) {
+        if (currentWaterTransform == null) return 0;
+
         // Calculate Gerstner wave movements
         float p = (position.x + position.z) / 16;
         float k = 2 * Mathf.PI / waveLength;
-        float f = k * (p - waveSpeed * Shader.GetGlobalVector("_Time").y);
+        float f = k * (p - waveSpeed * shaderTime.y);
 
-        return currentWaterTransform != null ? currentWaterTransform.position.y + waveHeight * Mathf.Sin(f) : 0;
+        return currentWaterTransform.position.y + (waveHeight * Mathf.Sin(f)) + GetValueFromNoiseTexture(position);
+    }
+
+    private float GetValueFromNoiseTexture(Vector3 position) {
+        float heightSample = (noiseTexture.GetPixel(Mathf.RoundToInt((position.x + shaderTime.x) / 512), Mathf.RoundToInt((position.z + shaderTime.z) / 512)).r * 2 - 1) * 4;
+        // Debug.Log(heightSample);
+        // return (tex2Dlod(_NoiseTex, float4(v0.xz + _Time.xz, 0, 0) / 512) * 2 - 1) * 4;
+        return heightSample;
     }
 }

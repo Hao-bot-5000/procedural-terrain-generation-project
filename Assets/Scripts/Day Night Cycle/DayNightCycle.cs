@@ -22,6 +22,7 @@ public class DayNightCycle : MonoBehaviour {
     [Header("Sky")]
     [SerializeField] private Transform _skyTransform;
     private float _intensity;
+    public float intensity { get { return _intensity; } }
 
     [Header("Sun")]
     // [SerializeField] private Transform _sunTransform;
@@ -113,7 +114,7 @@ public class DayNightCycle : MonoBehaviour {
         _sunLight.color = _sunColor.Evaluate(_intensity);
 
         // Adjust material color
-        _sunRenderer.material.color = _sunRendererColor.Evaluate(_intensity);
+        _sunRenderer.sharedMaterial.color = _sunRendererColor.Evaluate(_intensity);
     }
 
     private void AdjustAmbientLight() {
