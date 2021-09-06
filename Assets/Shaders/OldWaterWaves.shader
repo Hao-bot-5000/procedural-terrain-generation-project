@@ -1,4 +1,4 @@
-Shader "Custom/Water Waves" {
+Shader "Custom/Old Water Waves" {
     Properties {
         _NoiseTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
@@ -19,6 +19,8 @@ Shader "Custom/Water Waves" {
 
         sampler2D _NoiseTex;
 
+        // TODO: currently using hardcoded values (/ 512, * 4) to calculate noise values, find how these values relate
+        //       to the shader's current properties      
         float apply_noise(float4 v0) {
             return (tex2Dlod(_NoiseTex, float4(v0.xz + _Time.xz, 0, 0) / 512) * 2 - 1) * 4;
         }
@@ -35,24 +37,50 @@ Shader "Custom/Water Waves" {
         }
     ENDCG
 
-   SubShader {
+    // FIXME: Water meshes can cause overlapping alpha values
+    // https://answers.unity.com/questions/1660559/how-could-i-prevent-transparency-overlapping.html
+    SubShader {
         Tags { "Queue"="Transparent" "IgnoreProjector"="true" "RenderType"="Transparent" }
 
-        Stencil {
-            Ref 2
-            Comp NotEqual
-            Pass Replace
+        LOD 200
+        Cull Off
+
+        // Depth buffer pass -- https://forum.unity.com/threads/transparent-depth-shader-good-for-ghosts.149511/
+        Pass {
+            ZWrite On
+            ColorMask 0
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct v2f {
+                float4 pos : SV_POSITION;
+            };
+
+            // fixed4 _Color;
+    
+            v2f vert(appdata_full v) {
+                float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
+                // v0.y += apply_noise(v.texcoord.xy);
+                v.vertex = mul(unity_WorldToObject, v0);
+
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+    
+            half4 frag(v2f i) : COLOR {
+                return 0; // fixed4(_Color);
+            }
+            ENDCG
         }
-
-        Blend SrcAlpha OneMinusSrcAlpha
-
-        // Backface rendering
-        Cull Front
 
         CGPROGRAM
         #pragma surface surf Standard alpha vertex:vert
         #pragma target 3.0 // Use shader model 3.0 target, to get nicer looking lighting
-        #include "UnityCG.cginc"
+
 
         struct Input {
             float3 worldPos;
@@ -68,6 +96,7 @@ Shader "Custom/Water Waves" {
             UNITY_INITIALIZE_OUTPUT(Input, o);
 
             float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
+            // v0.y += apply_noise(v.texcoord.xy);
             v.vertex = mul(unity_WorldToObject, v0);
 
             o.worldPos = v0;
@@ -75,55 +104,12 @@ Shader "Custom/Water Waves" {
 
         void surf(Input i, inout SurfaceOutputStandard o) {
             fixed4 c = _Color;
-            o.Albedo = c.rgb;
+            o.Albedo = c.rgb; // lerp(half3(1.0, 1.0, 1.0), c.rgb, c.a);
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
 
-            half3 worldT = WorldNormalVector(i, half3(1,0,0));
-            half3 worldB = WorldNormalVector(i, half3(0,1,0));
-            half3 worldN = WorldNormalVector(i, half3(0,0,1));
-            half3x3 tbn = half3x3(worldT, worldB, worldN);
-
-            half3 worldNormal = Unity_SafeNormalize(cross(ddx(i.worldPos), ddy(i.worldPos)));
-            o.Normal = mul(tbn, worldNormal);
-        }
-        ENDCG
-
-        // Frontface rendering
-        Cull Back
-
-        CGPROGRAM
-        #pragma surface surf Standard alpha vertex:vert
-        #pragma target 3.0 // Use shader model 3.0 target, to get nicer looking lighting
-        #include "UnityCG.cginc"
-
-        struct Input {
-            float3 worldPos;
-            float3 worldNormal;
-            INTERNAL_DATA
-        };
-
-        fixed4 _Color;
-        half _Glossiness;
-        half _Metallic;
-
-        void vert(inout appdata_full v, out Input o) {
-            UNITY_INITIALIZE_OUTPUT(Input, o);
-
-            float4 v0 = displace_vert(mul(unity_ObjectToWorld, v.vertex));
-            v.vertex = mul(unity_WorldToObject, v0);
-
-            o.worldPos = v0;
-        }
-
-        void surf(Input i, inout SurfaceOutputStandard o) {
-            fixed4 c = _Color;
-            o.Albedo = c.rgb;
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
-            o.Alpha = c.a;
-
+            // Construct world to tangent matrix
             half3 worldT = WorldNormalVector(i, half3(1,0,0));
             half3 worldB = WorldNormalVector(i, half3(0,1,0));
             half3 worldN = WorldNormalVector(i, half3(0,0,1));
@@ -134,4 +120,6 @@ Shader "Custom/Water Waves" {
         }
         ENDCG
     }
+    FallBack "Diffuse"
 }
+

@@ -58,7 +58,6 @@ Shader "Custom/Large Celestial Body" {
                 UNITY_APPLY_FOG_COLOR(i.fogCoord, col, (unity_FogColor * 0.25) + (i.color * 0.75));
                 return col;
             }
-            
             ENDCG
         }
     }
