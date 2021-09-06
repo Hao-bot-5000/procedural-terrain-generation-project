@@ -7,6 +7,11 @@ public class StarsModule : DayNightModule {
     [SerializeField] private AnimationCurve _intensityCurve;
     private Color _starsMaterialColor;
 
+    [HideInInspector] private Color halfColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    void OnDestroy() {
+        _starsParticleRenderer.sharedMaterial.SetColor("_TintColor", halfColor);
+    }
+
     public override void UpdateModule(float intensity) {
         // _starsMaterialColor = _starsParticleRenderer.sharedMaterial.color;
         _starsMaterialColor =  _starsParticleRenderer.sharedMaterial.GetColor("_TintColor");

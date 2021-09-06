@@ -47,13 +47,9 @@ public class DayNightCycle : MonoBehaviour {
 
     private float updateEverySecond = 1f;
 
-    // void Start() {
-    //     _sunLight = _sunTransform.GetComponent<Light>();
-
-    //     // NOTE: Starting position of sunlight seems to affect the land meshes' ambient lighting (sunlight with -90d rotation causes land meshes 
-    //     //       to be pitch black at night time, sunlight with 90d rotation causes land meshes to have dim ambient lighting at night time) 
-    //     // _sunTransform.localEulerAngles = Vector3.left * 90f;
-    // }
+    void OnDestroy() {
+        _sunRenderer.sharedMaterial.color = Color.white;
+    }
 
     void Update() {
         if (!isPaused) {
