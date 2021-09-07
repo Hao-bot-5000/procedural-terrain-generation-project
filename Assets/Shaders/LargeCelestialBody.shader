@@ -53,9 +53,6 @@ Shader "Custom/Large Celestial Body" {
 
             fixed4 frag (v2f i) : SV_Target {
                 fixed4 col = tex2D(_MainTex, i.texcoord) * _Color;
-                // NOTE: Effectively weakens fog density by scaling the current fog color towards the material's color
-                //       I don't know how to directly lower fog density so this is the best I can do :)
-                UNITY_APPLY_FOG_COLOR(i.fogCoord, col, (unity_FogColor * 0.25) + (i.color * 0.75));
                 return col;
             }
             ENDCG
