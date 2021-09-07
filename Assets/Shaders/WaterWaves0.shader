@@ -1,4 +1,4 @@
-Shader "Custom/Old Water Waves" {
+Shader "Custom/Water Waves v0" {
     Properties {
         _NoiseTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
