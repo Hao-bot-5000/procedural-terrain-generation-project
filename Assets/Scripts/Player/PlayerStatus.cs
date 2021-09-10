@@ -14,6 +14,8 @@ public class PlayerStatus : MonoBehaviour {
     private float _currentWaveSpeed;
     private float _currentWaveHeight;
     private Texture2D _currentNoiseTexture;
+    private float _currentNoiseScale;
+    private float _currentNoiseHeight;
 
     void Update() {
         _shaderTime = Shader.GetGlobalVector("_Time");
@@ -37,6 +39,8 @@ public class PlayerStatus : MonoBehaviour {
                 _currentWaveHeight = _currentMeshRenderer.sharedMaterial.GetFloat("_WaveHeight");
 
                 _currentNoiseTexture = _currentMeshRenderer.sharedMaterial.GetTexture("_NoiseTex") as Texture2D;
+                _currentNoiseScale = _currentMeshRenderer.sharedMaterial.GetFloat("_NoiseScale");
+                _currentNoiseHeight = _currentMeshRenderer.sharedMaterial.GetFloat("_NoiseHeight");
             }
         }
     }
@@ -53,7 +57,9 @@ public class PlayerStatus : MonoBehaviour {
     }
 
     private float GetValueFromNoiseTexture(Vector3 position) {
-        float heightSample = (_currentNoiseTexture.GetPixel(Mathf.RoundToInt((position.x + _shaderTime.x) / 512), Mathf.RoundToInt((position.z + _shaderTime.z) / 512)).r * 2 - 1) * 4;
+        Vector3 sample = (position + (Vector3) _shaderTime) / _currentNoiseScale;
+        float heightSample = (_currentNoiseTexture.GetPixel(Mathf.RoundToInt(sample.x), Mathf.RoundToInt(sample.z)).r * 2 - 1) * _currentNoiseHeight;
+        // Debug.Log(heightSample);
         return heightSample;
     }
 }
