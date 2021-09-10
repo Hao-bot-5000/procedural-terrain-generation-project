@@ -326,6 +326,7 @@ MonoBehaviour:
   jumpHeight: 4
   slideSpeed: 16
   friction: 0.875
+  viscosity: 0.5
   jumpCooldown: 0.5
   playerCamera: {fileID: 963194228}
   sensitivity: 2
